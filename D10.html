@@ -1,0 +1,3998 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyHigh: Airline Manager</title>
+
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --gray: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #e2e8f0;
+            color: var(--dark);
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, .1);
+        }
+
+        header h1 {
+            margin-bottom: 5px;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .05);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: var(--gray);
+            font-size: .9rem;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .05);
+            margin-bottom: 20px;
+        }
+
+        .panel h2 {
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .grid-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .item-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 15px;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .item-card h4 {
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .item-card p {
+            font-size: .85rem;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+
+        .price {
+            color: var(--success) !important;
+            font-size: 1rem !important;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        button {
+            background: var(--primary-light);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: background .2s, transform .1s;
+        }
+
+        button:hover:not(:disabled) {
+            background: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button.danger {
+            background: var(--danger);
+        }
+
+        button.danger:hover:not(:disabled) {
+            background: #dc2626;
+        }
+
+        button.success {
+            background: var(--success);
+        }
+
+        button.success:hover:not(:disabled) {
+            background: #059669;
+        }
+
+        button.warning {
+            background: var(--warning);
+        }
+
+        .log-box {
+            background: #0f172a;
+            color: #38bdf8;
+            font-family: monospace;
+            padding: 15px;
+            border-radius: 6px;
+            height: 250px;
+            overflow-y: auto;
+            font-size: .85rem;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 3px;
+        }
+
+        .route-item {
+            padding: 12px;
+            background: #f1f5f9;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: .9rem;
+        }
+
+        .route-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .badge {
+            background: var(--success);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: .75rem;
+        }
+
+        .badge.idle {
+            background: var(--gray);
+        }
+
+        .badge.warning {
+            background: var(--warning);
+        }
+
+        .empty {
+            color: var(--gray);
+            text-align: center;
+            padding: 15px;
+        }
+
+        .notification {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            max-width: 350px;
+            padding: 14px 18px;
+            border-radius: 8px;
+            color: white;
+            background: var(--dark);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, .2);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: .25s;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .notification.success {
+            background: var(--success);
+        }
+
+        .notification.error {
+            background: var(--danger);
+        }
+
+        .notification.warning {
+            background: var(--warning);
+        }
+
+        select {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #cbd5e1;
+            border-radius: 5px;
+            background: white;
+            margin-top: 5px;
+        }
+
+        .route-details {
+            color: var(--gray);
+            font-size: .8rem;
+            line-height: 1.5;
+        }
+
+        .section-note {
+            font-size: .9rem;
+            color: var(--gray);
+            margin-bottom: 15px;
+        }
+
+        .small-button {
+            padding: 5px 8px;
+            font-size: .75rem;
+            margin-top: 6px;
+        }
+
+        .money-positive {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .money-negative {
+            color: var(--danger);
+            font-weight: bold;
+        }
+
+        .save-controls {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        /* =========================================================
+           START MENU / THEMES / STATS
+        ========================================================= */
+        body.theme-ocean {
+            --primary: #075985;
+            --primary-light: #0ea5e9;
+            --success: #059669;
+            --dark: #082f49;
+            background: #e0f2fe;
+        }
+
+        body.theme-sunset {
+            --primary: #9a3412;
+            --primary-light: #f97316;
+            --success: #16a34a;
+            --dark: #431407;
+            background: #ffedd5;
+        }
+
+        body.theme-midnight {
+            --primary: #312e81;
+            --primary-light: #6366f1;
+            --success: #22c55e;
+            --dark: #111827;
+            background: #e0e7ff;
+        }
+
+        body.theme-emerald {
+            --primary: #065f46;
+            --primary-light: #10b981;
+            --success: #16a34a;
+            --dark: #022c22;
+            background: #d1fae5;
+        }
+
+        .menu-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: radial-gradient(circle at top, rgba(59, 130, 246, .28), rgba(15, 23, 42, .96));
+            overflow-y: auto;
+        }
+
+        .menu-overlay.hidden {
+            display: none;
+        }
+
+        .menu-card {
+            width: min(980px, 100%);
+            background: rgba(255, 255, 255, .98);
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, .35);
+        }
+
+        .menu-brand {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .menu-brand .logo {
+            font-size: 3.5rem;
+            margin-bottom: 5px;
+        }
+
+        .menu-brand h1 {
+            color: var(--primary);
+            font-size: 2.4rem;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 20px;
+        }
+
+        .menu-section {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px;
+            background: #f8fafc;
+        }
+
+        .menu-section h2 {
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .menu-section label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 7px;
+        }
+
+        .airline-name-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            margin-bottom: 15px;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .theme-option {
+            margin: 0;
+            padding: 13px;
+            border: 2px solid #cbd5e1;
+            border-radius: 9px;
+            background: white;
+            color: var(--dark);
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .theme-option.selected {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, .15);
+        }
+
+        .theme-option strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .theme-swatch {
+            height: 8px;
+            border-radius: 99px;
+            margin-bottom: 7px;
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+        }
+
+        .theme-option[data-theme="sunset"] .theme-swatch {
+            background: linear-gradient(90deg, #9a3412, #f97316);
+        }
+
+        .theme-option[data-theme="midnight"] .theme-swatch {
+            background: linear-gradient(90deg, #312e81, #6366f1);
+        }
+
+        .theme-option[data-theme="emerald"] .theme-swatch {
+            background: linear-gradient(90deg, #065f46, #10b981);
+        }
+
+        .menu-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .menu-actions button {
+            flex: 1;
+            min-width: 180px;
+            padding: 13px;
+            font-size: 1rem;
+        }
+
+        .menu-tip {
+            margin-top: 12px;
+            color: var(--gray);
+            font-size: .88rem;
+            text-align: center;
+        }
+
+        .stats-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 9000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, .72);
+        }
+
+        .stats-modal.hidden {
+            display: none;
+        }
+
+        .stats-card {
+            width: min(760px, 100%);
+            max-height: 90vh;
+            overflow-y: auto;
+            background: white;
+            border-radius: 14px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
+        }
+
+        .stats-card h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .career-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .career-stat {
+            padding: 15px;
+            border-radius: 9px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+        }
+
+        .career-stat span {
+            display: block;
+            color: var(--gray);
+            font-size: .8rem;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .career-stat strong {
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .menu-button {
+            background: rgba(255, 255, 255, .16);
+            border: 1px solid rgba(255, 255, 255, .35);
+        }
+
+        @media (max-width: 768px) {
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .menu-card {
+                padding: 20px;
+            }
+        }
+
+
+        /* =========================================================
+           LAWSUITS / LEGAL DEPARTMENT
+        ========================================================= */
+        .legal-alert {
+            border: 2px solid #f59e0b;
+            background: #fffbeb;
+            color: #78350f;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+        }
+
+        .legal-alert.danger {
+            border-color: #ef4444;
+            background: #fef2f2;
+            color: #7f1d1d;
+        }
+
+        .legal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 10px;
+        }
+
+        .legal-stat {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        .legal-stat strong {
+            display: block;
+            color: var(--primary);
+            font-size: 1.15rem;
+            margin-top: 4px;
+        }
+
+        /* =========================================================
+           INTERACTIVE CASINO
+        ========================================================= */
+        .casino-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .casino-tab {
+            margin: 0;
+            flex: 1;
+            min-width: 130px;
+        }
+
+        .casino-tab.active {
+            background: var(--dark);
+        }
+
+        .casino-game {
+            display: none;
+        }
+
+        .casino-game.active {
+            display: block;
+        }
+
+        .casino-table {
+            background: radial-gradient(circle at center, #14532d, #052e16);
+            border-radius: 14px;
+            padding: 18px;
+            color: white;
+            min-height: 300px;
+            box-shadow: inset 0 0 35px rgba(0, 0, 0, .35);
+        }
+
+        .casino-table h3 {
+            text-align: center;
+            margin-bottom: 14px;
+        }
+
+        .casino-cards {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            min-height: 76px;
+        }
+
+        .playing-card {
+            width: 54px;
+            height: 72px;
+            background: #fff;
+            color: #111827;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            font-weight: 800;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, .3);
+        }
+
+        .playing-card.red {
+            color: #dc2626;
+        }
+
+        .playing-card.hidden-card {
+            background: linear-gradient(135deg, #1e3a8a, #60a5fa);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .casino-center {
+            text-align: center;
+            margin: 12px 0;
+        }
+
+        .casino-actions {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .casino-actions button {
+            min-width: 100px;
+        }
+
+        .casino-bet-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .casino-status {
+            text-align: center;
+            font-weight: 700;
+            min-height: 24px;
+            margin: 8px 0;
+        }
+
+        .poker-board {
+            display: flex;
+            gap: 7px;
+            justify-content: center;
+            flex-wrap: wrap;
+            min-height: 72px;
+        }
+
+        .poker-info {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+            font-size: .9rem;
+        }
+
+        .casino-history {
+            max-height: 150px;
+            overflow: auto;
+            margin-top: 12px;
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: .82rem;
+        }
+
+        .casino-history div {
+            padding: 4px 0;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .chip {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 99px;
+            background: rgba(255, 255, 255, .15);
+            margin: 2px;
+        }
+
+        @media (max-width:600px) {
+            .casino-bet-row {
+                grid-template-columns: 1fr;
+            }
+
+            .playing-card {
+                width: 48px;
+                height: 64px;
+            }
+        }
+
+
+
+        /* =========================================================
+           INTERACTIVE CRIME SYSTEM
+        ========================================================= */
+        .crime-panel {
+            background: linear-gradient(135deg, #fff7ed, #fef2f2);
+            border: 1px solid #fecaca;
+        }
+
+        .crime-meter {
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 99px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .crime-meter-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #22c55e, #f59e0b, #ef4444);
+            transition: width .25s ease;
+        }
+
+        .crime-warning {
+            padding: 11px;
+            border-radius: 8px;
+            background: #450a0a;
+            color: #fecaca;
+            margin-top: 12px;
+            font-weight: 700;
+        }
+
+        .crime-card {
+            border: 1px solid #fecaca;
+            background: #fffafa;
+        }
+
+        .crime-card .price {
+            color: #b91c1c !important;
+        }
+
+        .crime-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 12000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(2, 6, 23, .92);
+            overflow-y: auto;
+        }
+
+        .crime-modal.hidden {
+            display: none;
+        }
+
+        .crime-game {
+            width: min(900px, 100%);
+            background: #0f172a;
+            color: white;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 30px 100px rgba(0, 0, 0, .6);
+        }
+
+        .crime-game h2 {
+            color: #fca5a5;
+            margin-bottom: 5px;
+        }
+
+        .crime-hud {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+            gap: 9px;
+            margin: 15px 0;
+        }
+
+        .crime-hud-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 9px;
+            padding: 10px;
+        }
+
+        .crime-hud-card span {
+            display: block;
+            color: #94a3b8;
+            font-size: .75rem;
+            text-transform: uppercase;
+        }
+
+        .crime-hud-card strong {
+            display: block;
+            font-size: 1.2rem;
+            margin-top: 3px;
+        }
+
+        .flight-track {
+            position: relative;
+            height: 180px;
+            border-radius: 14px;
+            overflow: hidden;
+            background:
+                linear-gradient(#0b1220 0 58%, #172554 58% 100%);
+            border: 1px solid #334155;
+            margin: 14px 0;
+        }
+
+        .flight-cloud {
+            position: absolute;
+            width: 90px;
+            height: 25px;
+            background: rgba(255, 255, 255, .18);
+            border-radius: 99px;
+            filter: blur(1px);
+        }
+
+        .flight-cloud.c1 {
+            left: 12%;
+            top: 25%;
+        }
+
+        .flight-cloud.c2 {
+            left: 58%;
+            top: 42%;
+            transform: scale(.7);
+        }
+
+        .flight-cloud.c3 {
+            left: 78%;
+            top: 18%;
+            transform: scale(.55);
+        }
+
+        .flight-plane {
+            position: absolute;
+            left: 7%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            transition: left .12s linear, top .12s linear;
+            filter: drop-shadow(0 4px 5px rgba(0, 0, 0, .4));
+        }
+
+        .flight-airport {
+            position: absolute;
+            right: 4%;
+            bottom: 12%;
+            font-size: 2rem;
+        }
+
+        .flight-obstacle {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #ef4444;
+            box-shadow: 0 0 16px rgba(239, 68, 68, .6);
+        }
+
+        .flight-controls {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(75px, 1fr));
+            gap: 7px;
+            max-width: 360px;
+            margin: 0 auto;
+        }
+
+        .flight-controls button {
+            margin: 0;
+            min-height: 42px;
+        }
+
+        .flight-controls .boost {
+            grid-column: 1 / -1;
+        }
+
+        .crime-log {
+            min-height: 72px;
+            max-height: 145px;
+            overflow-y: auto;
+            background: #020617;
+            border-radius: 9px;
+            padding: 10px;
+            margin-top: 13px;
+            font-size: .84rem;
+        }
+
+        .crime-log div {
+            padding: 4px 0;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .crime-choice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .crime-choice {
+            text-align: left;
+            min-height: 90px;
+            background: #1e293b;
+            border: 1px solid #475569;
+        }
+
+        .crime-choice:hover:not(:disabled) {
+            background: #334155;
+        }
+
+        @media (max-width: 600px) {
+            .flight-track {
+                height: 145px;
+            }
+
+            .flight-controls {
+                max-width: 100%;
+            }
+        }
+
+        /* =========================================================
+           INTERACTIVE COURTROOM
+        ========================================================= */
+        .court-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 11000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(15, 23, 42, .88);
+            overflow-y: auto;
+        }
+
+        .court-modal.hidden {
+            display: none;
+        }
+
+        .courtroom {
+            width: min(1050px, 100%);
+            max-height: 94vh;
+            overflow-y: auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 30px 90px rgba(0, 0, 0, .5);
+            padding: 22px;
+        }
+
+        .court-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 15px;
+        }
+
+        .court-header h2 {
+            color: var(--primary);
+        }
+
+        .court-status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+            gap: 9px;
+            margin-bottom: 15px;
+        }
+
+        .court-stat {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .court-stat span {
+            display: block;
+            color: var(--gray);
+            font-size: .75rem;
+            text-transform: uppercase;
+        }
+
+        .court-stat strong {
+            display: block;
+            color: var(--primary);
+            margin-top: 3px;
+        }
+
+        .court-scene {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .court-person {
+            min-height: 145px;
+            border-radius: 12px;
+            padding: 14px;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+        }
+
+        .court-person h3 {
+            margin-bottom: 7px;
+        }
+
+        .court-person p {
+            color: var(--gray);
+            font-size: .88rem;
+            line-height: 1.45;
+        }
+
+        .court-person.judge {
+            background: linear-gradient(135deg, #eef2ff, #f8fafc);
+            text-align: center;
+        }
+
+        .court-dialogue {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 14px;
+            min-height: 145px;
+            max-height: 210px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+            font-family: Georgia, serif;
+        }
+
+        .court-line {
+            padding: 6px 0;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .court-line b {
+            color: #38bdf8;
+        }
+
+        .court-choices {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 9px;
+        }
+
+        .court-choice {
+            margin: 0;
+            min-height: 70px;
+            text-align: left;
+            background: #f8fafc;
+            color: var(--dark);
+            border: 1px solid #cbd5e1;
+        }
+
+        .court-choice:hover:not(:disabled) {
+            background: #e2e8f0;
+        }
+
+        .court-choice strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .court-evidence {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+
+        .evidence-chip {
+            background: #dbeafe;
+            color: #1e3a8a;
+            border-radius: 99px;
+            padding: 5px 9px;
+            font-size: .78rem;
+            font-weight: 700;
+        }
+
+        .court-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 760px) {
+            .court-scene {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <!-- START MENU -->
+    <div id="start-menu" class="menu-overlay">
+        <div class="menu-card">
+            <div class="menu-brand">
+                <div class="logo">✈️</div>
+                <h1>SkyHigh: Airline Manager</h1>
+                <p>Build your airline empire, dominate the skies, and take a few questionable bets at the casino.</p>
+            </div>
+
+            <div class="menu-grid">
+                <div class="menu-section">
+                    <h2>🏢 Create Your Airline</h2>
+                    <label for="airline-name-input">Airline Name</label>
+                    <input id="airline-name-input" class="airline-name-input" maxlength="30"
+                        placeholder="e.g. Atlantic Airways" value="SkyHigh Airlines">
+
+                    <h2>🎨 Choose a Theme</h2>
+                    <div class="theme-grid">
+                        <button type="button" class="theme-option selected" data-theme="classic"
+                            onclick="selectTheme('classic')">
+                            <div class="theme-swatch"></div>
+                            <strong>Classic Blue</strong>
+                            <span>Professional aviation look</span>
+                        </button>
+                        <button type="button" class="theme-option" data-theme="sunset" onclick="selectTheme('sunset')">
+                            <div class="theme-swatch"></div>
+                            <strong>Sunset</strong>
+                            <span>Warm and energetic</span>
+                        </button>
+                        <button type="button" class="theme-option" data-theme="midnight"
+                            onclick="selectTheme('midnight')">
+                            <div class="theme-swatch"></div>
+                            <strong>Midnight</strong>
+                            <span>Executive night-flight style</span>
+                        </button>
+                        <button type="button" class="theme-option" data-theme="emerald"
+                            onclick="selectTheme('emerald')">
+                            <div class="theme-swatch"></div>
+                            <strong>Emerald</strong>
+                            <span>Green-growth business theme</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="menu-section">
+                    <h2>📊 Career Overview</h2>
+                    <div id="menu-stats-preview" class="career-stats-grid"></div>
+                    <p class="menu-tip">Your airline name and theme are saved with your game.</p>
+                </div>
+            </div>
+
+            <div class="menu-actions">
+                <button class="success" onclick="startNewAirline()">🚀 Start New Airline</button>
+                <button onclick="continueAirline()">▶️ Continue Saved Game</button>
+            </div>
+            <p class="menu-tip">Tip: You can open the full stats screen at any time while playing.</p>
+        </div>
+    </div>
+
+    <!-- STATS MODAL -->
+    <div id="stats-modal" class="stats-modal hidden" onclick="closeStatsIfBackdrop(event)">
+        <div class="stats-card">
+            <h2>📊 Airline Statistics</h2>
+            <p class="section-note" id="stats-airline-name">Airline performance overview</p>
+            <div id="full-stats-grid" class="career-stats-grid"></div>
+            <div class="menu-actions">
+                <button onclick="closeStats()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <div>
+            <h1 id="airline-title">✈️ SkyHigh Airlines</h1>
+            <p>Global Fleet & Route Management Simulation</p>
+        </div>
+
+        <div style="text-align:right;">
+            <p id="game-time">Week: 1</p>
+            <small>Income updates every second • 1 week = 4 seconds</small>
+
+            <div class="save-controls">
+                <button class="small-button menu-button" onclick="openStartMenu()">Menu</button>
+                <button class="small-button menu-button" onclick="openStats()">Stats</button>
+                <button class="small-button" onclick="saveGame()">Save</button>
+                <button class="small-button" onclick="loadGame()">Load</button>
+                <button class="small-button danger" onclick="resetGame()">Reset</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="stats-container">
+        <div class="stat-card">
+            <h3>Cash Balance</h3>
+            <p id="stat-cash">$10,000,000</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Total Fleet</h3>
+            <p id="stat-fleet">0</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Active Routes</h3>
+            <p id="stat-routes">0</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Est. Weekly Profit</h3>
+            <p id="stat-profit">$0</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Income / Second</h3>
+            <p id="stat-per-second">$0</p>
+        </div>
+    </div>
+
+    <div class="main-layout">
+
+        <!-- LEFT -->
+        <div>
+
+            <div class="panel">
+                <h2>🛩️ Aircraft Marketplace</h2>
+
+                <p class="section-note">
+                    Buy aircraft for your fleet. Purchased aircraft remain yours permanently.
+                </p>
+
+                <div class="grid-list" id="aircraft-market"></div>
+            </div>
+
+
+            <div class="panel">
+                <h2>💼 Airline Management & Finance</h2>
+                <p class="section-note">
+                    Manage your airline's reputation, marketing, staff and cash reserves.
+                    You can also take a controlled financial risk by investing company cash in the market.
+                </p>
+
+                <div class="grid-list">
+                    <div class="item-card">
+                        <h4>📣 Marketing Campaign</h4>
+                        <p>Spend $250,000 to boost demand across your network for 4 weeks.</p>
+                        <button class="success" onclick="launchMarketing()">Launch Campaign</button>
+                    </div>
+
+                    <div class="item-card">
+                        <h4>👨‍✈️ Staff Training</h4>
+                        <p>Improve operations and increase route revenue by 5% for 4 weeks.</p>
+                        <button onclick="trainStaff()">Train Staff — $150,000</button>
+                    </div>
+
+                    <div class="item-card">
+                        <h4>🏦 Emergency Loan</h4>
+                        <p>Receive $2,000,000 now. Repay $2,300,000 after 12 weeks.</p>
+                        <button class="warning" onclick="takeLoan()">Take Loan</button>
+                    </div>
+
+                    <div class="item-card">
+                        <h4>🎲 Corporate Risk Fund</h4>
+                        <p>Risk some of the airline's cash for a chance at a larger return.</p>
+                        <select id="gamble-amount">
+                            <option value="100000">$100,000</option>
+                            <option value="250000">$250,000</option>
+                            <option value="500000">$500,000</option>
+                            <option value="1000000">$1,000,000</option>
+                        </select>
+                        <button class="danger" onclick="gambleAirlineMoney()">Place Risky Investment</button>
+                    </div>
+                </div>
+
+                <div style="margin-top:15px; padding:12px; background:#f1f5f9; border-radius:6px;">
+                    <strong>Company Metrics</strong>
+                    <div class="route-details" style="margin-top:6px;">
+                        Reputation: <span id="management-reputation">50</span>/100<br>
+                        Marketing bonus: <span id="management-marketing">0%</span><br>
+                        Staff efficiency: <span id="management-staff">0%</span><br>
+                        Outstanding loan: <span id="management-loan">$0</span>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="panel crime-panel" id="crime-panel">
+                <h2>🚨 CRIME NETWORK <span class="badge danger">High Risk</span></h2>
+                <p class="section-note">
+                    Run fictional arcade-style crimes for fast money and illegal aircraft.
+                    Every job increases your heat and can create legal trouble.
+                </p>
+
+                <div class="legal-grid">
+                    <div class="legal-stat">
+                        <span>Crime Heat</span>
+                        <strong id="crime-heat">0%</strong>
+                        <div class="crime-meter">
+                            <div id="crime-heat-fill" class="crime-meter-fill"></div>
+                        </div>
+                    </div>
+                    <div class="legal-stat">
+                        <span>Crime W/L</span>
+                        <strong id="crime-record">0 / 0</strong>
+                    </div>
+                    <div class="legal-stat">
+                        <span>Planes Stolen</span>
+                        <strong id="planes-stolen">0</strong>
+                    </div>
+                    <div class="legal-stat">
+                        <span>Illegal Profit</span>
+                        <strong id="crime-profit">$0</strong>
+                    </div>
+                </div>
+
+                <div id="crime-warning" class="crime-warning">
+                    ⚠️ The authorities are watching. Keep an eye on your heat.
+                </div>
+
+                <div class="grid-list" style="margin-top:12px;">
+                    <div class="item-card crime-card">
+                        <h4>✈️ Plane Heist — Fly It Home</h4>
+                        <p>Take a fictional aircraft and race it back to your airport. Dodge hazards and manage your
+                            flight controls.</p>
+                        <p class="price">Reward: Keep the plane + bonus cash</p>
+                        <button class="danger" onclick="startPlaneHeist()">Start Plane Heist</button>
+                    </div>
+
+                    <div class="item-card crime-card">
+                        <h4>📦 Cargo Swipe</h4>
+                        <p>A quick timing minigame. Hit the green window to grab a valuable cargo shipment.</p>
+                        <p class="price">Potential reward: $250k–$1.5m</p>
+                        <button class="danger" onclick="startCargoCrime()">Swipe Cargo</button>
+                    </div>
+
+                    <div class="item-card crime-card">
+                        <h4>💻 Black-Market Data Job</h4>
+                        <p>Choose a risky fictional data job. Better choices pay more but raise your heat faster.</p>
+                        <p class="price">Potential reward: $400k–$2m</p>
+                        <button class="danger" onclick="startDataCrime()">Run Data Job</button>
+                    </div>
+
+                    <div class="item-card crime-card">
+                        <h4>💼 Shady Deal</h4>
+                        <p>Pick a questionable deal from three mystery offers. One is lucrative, one is mediocre, one is
+                            a trap.</p>
+                        <p class="price">Potential reward: up to $2.5m</p>
+                        <button class="danger" onclick="startShadyDeal()">Open Deal Board</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel" id="legal-panel">
+                <h2>⚖️ Legal Department <span class="badge warning">Lawsuit Risk</span></h2>
+                <p class="section-note">
+                    Every two real-time minutes, there is a 20% chance your airline gets sued.
+                    Gambling increases your lawsuit risk, so hiring lawyers is important.
+                </p>
+
+                <div class="legal-grid">
+                    <div class="legal-stat">
+                        <span>Current Lawsuit Risk</span>
+                        <strong id="lawsuit-risk">20%</strong>
+                    </div>
+                    <div class="legal-stat">
+                        <span>Lawyers Hired</span>
+                        <strong id="lawyer-count">0</strong>
+                    </div>
+                    <div class="legal-stat">
+                        <span>Next Legal Check</span>
+                        <strong id="lawsuit-countdown">120s</strong>
+                    </div>
+                    <div class="legal-stat">
+                        <span>Active Lawsuit</span>
+                        <strong id="lawsuit-status">None</strong>
+                    </div>
+                </div>
+
+                <div id="legal-alert" class="legal-alert">
+                    Your airline currently has no active lawsuit. Lawyers reduce the chance of losing a lawsuit.
+                </div>
+
+                <div class="grid-list" style="margin-top:12px;">
+                    <div class="item-card">
+                        <h4>👨‍⚖️ Hire Airline Lawyer</h4>
+                        <p>Hire a legal specialist. Each lawyer reduces lawsuit risk by 3 percentage points and helps
+                            defend lawsuits.</p>
+                        <p class="price" id="lawyer-cost">$500,000</p>
+                        <button class="success" onclick="hireLawyer()">Hire Lawyer</button>
+                    </div>
+                    <div class="item-card">
+                        <h4>🛡️ Settle Lawsuit</h4>
+                        <p>Pay the current settlement cost to end an active lawsuit immediately. Lawyers reduce the
+                            settlement.</p>
+                        <p class="price" id="settlement-cost">$1,000,000</p>
+                        <button class="warning" onclick="openCourtFromLegal()">⚖️ Go To Court</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel" id="casino-panel">
+                <h2>🎰 SkyHigh Casino <span class="badge warning">Virtual airline cash</span></h2>
+                <p class="section-note">Pick a game. Blackjack gives you decisions every hand, while Texas Hold'em lets
+                    you check, call, raise or fold against the house.</p>
+
+                <div class="casino-tabs">
+                    <button class="casino-tab active" id="tab-roulette" onclick="switchCasinoGame('roulette')">🎲
+                        Roulette</button>
+                    <button class="casino-tab" id="tab-blackjack" onclick="switchCasinoGame('blackjack')">🃏
+                        Blackjack</button>
+                    <button class="casino-tab" id="tab-poker" onclick="switchCasinoGame('poker')">♠️ Texas
+                        Hold'em</button>
+                </div>
+
+                <div id="casino-roulette" class="casino-game active">
+                    <div class="item-card">
+                        <h4>🎲 Roulette</h4>
+                        <p>Red/black pays 2× total. Green pays 14× total.</p>
+                        <select id="casino-bet">
+                            <option value="10000">$10,000</option>
+                            <option value="50000">$50,000</option>
+                            <option value="100000">$100,000</option>
+                            <option value="250000">$250,000</option>
+                            <option value="500000">$500,000</option>
+                        </select>
+                        <select id="casino-choice">
+                            <option value="red">🔴 Red</option>
+                            <option value="black">⚫ Black</option>
+                            <option value="green">🟢 Green (14×)</option>
+                        </select>
+                        <button class="danger" onclick="playCasino()">Spin Roulette</button>
+                        <p id="casino-result" class="route-details" style="margin-top:8px;">Place your bet and spin.</p>
+                    </div>
+                </div>
+
+                <div id="casino-blackjack" class="casino-game">
+                    <div class="casino-table">
+                        <h3>🃏 Blackjack — Beat the Dealer</h3>
+                        <div class="casino-bet-row">
+                            <div><label>Bet</label><select id="blackjack-bet">
+                                    <option value="10000">$10,000</option>
+                                    <option value="50000">$50,000</option>
+                                    <option value="100000">$100,000</option>
+                                    <option value="250000">$250,000</option>
+                                    <option value="500000">$500,000</option>
+                                </select></div>
+                            <div class="casino-center"><span class="chip">Dealer: <b
+                                        id="bj-dealer-score">?</b></span><span class="chip">You: <b
+                                        id="bj-player-score">—</b></span></div>
+                        </div>
+                        <div><strong>Dealer</strong>
+                            <div id="bj-dealer-cards" class="casino-cards"></div>
+                        </div>
+                        <div class="casino-center">VS</div>
+                        <div><strong>You</strong>
+                            <div id="bj-player-cards" class="casino-cards"></div>
+                        </div>
+                        <div id="bj-status" class="casino-status">Start a hand to play.</div>
+                        <div class="casino-actions">
+                            <button class="success" id="bj-start" onclick="startBlackjack()">Deal Hand</button>
+                            <button id="bj-hit" onclick="blackjackHit()" disabled>Hit</button>
+                            <button id="bj-stand" onclick="blackjackStand()" disabled>Stand</button>
+                            <button class="warning" id="bj-double" onclick="blackjackDouble()" disabled>Double</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="casino-poker" class="casino-game">
+                    <div class="casino-table">
+                        <h3>♠️ Texas Hold'em — Heads Up</h3>
+                        <div class="casino-bet-row">
+                            <div><label>Buy-in / Hand</label><select id="poker-bet">
+                                    <option value="10000">$10,000</option>
+                                    <option value="50000">$50,000</option>
+                                    <option value="100000">$100,000</option>
+                                    <option value="250000">$250,000</option>
+                                    <option value="500000">$500,000</option>
+                                </select></div>
+                            <div class="poker-info"><span>Pot: <b id="poker-pot">$0</b></span><span>To call: <b
+                                        id="poker-to-call">$0</b></span></div>
+                        </div>
+                        <div><strong>Dealer</strong>
+                            <div id="poker-dealer-cards" class="casino-cards"></div>
+                        </div>
+                        <div class="casino-center">COMMUNITY</div>
+                        <div id="poker-board" class="poker-board"></div>
+                        <div><strong>You</strong>
+                            <div id="poker-player-cards" class="casino-cards"></div>
+                        </div>
+                        <div id="poker-status" class="casino-status">Start a hand. The dealer will play automatically.
+                        </div>
+                        <div class="casino-actions">
+                            <button class="success" id="poker-start" onclick="startPoker()">Deal Hand</button>
+                            <button id="poker-check" onclick="pokerCheck()" disabled>Check</button>
+                            <button id="poker-call" onclick="pokerCall()" disabled>Call</button>
+                            <button class="warning" id="poker-raise" onclick="pokerRaise()" disabled>Raise</button>
+                            <button class="danger" id="poker-fold" onclick="pokerFold()" disabled>Fold</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="casino-history" id="casino-history"><strong>Casino history</strong>
+                    <div>No games played this session.</div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>🌎 Route Network Planner</h2>
+
+                <p class="section-note">
+                    Select an aircraft and destination. The aircraft must have enough range
+                    and cannot already be assigned to another route.
+                </p>
+
+                <div class="grid-list" id="route-market"></div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div>
+
+            <div class="panel">
+                <h2>✈️ Current Fleet Status</h2>
+
+                <div id="fleet-list" style="max-height:300px; overflow-y:auto;">
+                    <p class="empty">No aircraft purchased yet.</p>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>🗺️ Active Routes</h2>
+
+                <div id="active-routes-list" style="max-height:300px; overflow-y:auto;">
+                    <p class="empty">No active flight routes.</p>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>📋 Flight Operations Log</h2>
+
+                <div class="log-box" id="log-box">
+                    <div class="log-entry">
+                        [System] Welcome Captain. Purchase an aircraft and establish a route.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <!-- INTERACTIVE CRIME ARCADE -->
+    <div id="crime-modal" class="crime-modal hidden">
+        <div class="crime-game">
+            <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;">
+                <div>
+                    <h2 id="crime-modal-title">🚨 Crime Arcade</h2>
+                    <p id="crime-modal-subtitle" class="section-note" style="color:#cbd5e1;">Fictional high-risk arcade
+                        job.</p>
+                </div>
+                <button class="danger" onclick="closeCrimeModal()">Abort</button>
+            </div>
+
+            <div id="crime-heist-ui">
+                <div class="crime-hud">
+                    <div class="crime-hud-card"><span>Stolen Aircraft</span><strong id="heist-aircraft">—</strong></div>
+                    <div class="crime-hud-card"><span>Return Progress</span><strong id="heist-progress">0%</strong>
+                    </div>
+                    <div class="crime-hud-card"><span>Flight Condition</span><strong id="heist-condition">100%</strong>
+                    </div>
+                    <div class="crime-hud-card"><span>Heat</span><strong id="heist-heat">0%</strong></div>
+                </div>
+
+                <div class="flight-track" id="flight-track">
+                    <div class="flight-cloud c1"></div>
+                    <div class="flight-cloud c2"></div>
+                    <div class="flight-cloud c3"></div>
+                    <div id="flight-obstacle-1" class="flight-obstacle" style="left:34%;top:28%;"></div>
+                    <div id="flight-obstacle-2" class="flight-obstacle" style="left:63%;top:67%;"></div>
+                    <div id="flight-plane" class="flight-plane">✈️</div>
+                    <div class="flight-airport">🛬</div>
+                </div>
+
+                <p id="heist-status" class="casino-status" style="color:#e2e8f0;">Get the aircraft home before condition
+                    hits zero.</p>
+
+                <div class="flight-controls">
+                    <button onclick="heistControl('up')">⬆️ Climb</button>
+                    <button onclick="heistControl('steady')">⏺️ Steady</button>
+                    <button onclick="heistControl('down')">⬇️ Descend</button>
+                    <button onclick="heistControl('left')">⬅️ Left</button>
+                    <button onclick="heistControl('right')">➡️ Right</button>
+                    <button class="boost warning" onclick="heistControl('boost')">⚡ Boost</button>
+                </div>
+
+                <div id="crime-log" class="crime-log"></div>
+            </div>
+
+            <div id="crime-choice-ui" style="display:none;">
+                <div id="crime-choice-intro" class="casino-status" style="color:#e2e8f0;"></div>
+                <div id="crime-choice-grid" class="crime-choice-grid"></div>
+                <div id="crime-result" class="crime-log"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INTERACTIVE COURTROOM -->
+    <div id="court-modal" class="court-modal hidden">
+        <div class="courtroom">
+            <div class="court-header">
+                <div>
+                    <h2>⚖️ SkyHigh v. The Plaintiff</h2>
+                    <p class="section-note" id="court-case-title">Civil lawsuit hearing</p>
+                </div>
+                <button class="danger" onclick="leaveCourt()">Leave Court</button>
+            </div>
+
+            <div class="court-status-grid">
+                <div class="court-stat"><span>Case Strength</span><strong id="court-case-strength">50%</strong></div>
+                <div class="court-stat"><span>Your Defense</span><strong id="court-defense">50%</strong></div>
+                <div class="court-stat"><span>Judge Favor</span><strong id="court-judge-favor">50%</strong></div>
+                <div class="court-stat"><span>Reputation</span><strong id="court-reputation">50/100</strong></div>
+                <div class="court-stat"><span>Round</span><strong id="court-round">1 / 5</strong></div>
+            </div>
+
+            <div class="court-scene">
+                <div class="court-person">
+                    <h3>👔 Plaintiff</h3>
+                    <p id="court-plaintiff">The plaintiff is presenting their case.</p>
+                </div>
+                <div class="court-person judge">
+                    <h3>👩‍⚖️ Judge</h3>
+                    <p id="court-judge">Court is in session. Your decisions affect the verdict.</p>
+                </div>
+                <div class="court-person">
+                    <h3>🧑‍💼 Your Lawyer</h3>
+                    <p id="court-lawyer">Your legal team is waiting for your instructions.</p>
+                </div>
+            </div>
+
+            <div id="court-dialogue" class="court-dialogue"></div>
+            <div class="court-evidence" id="court-evidence"></div>
+
+            <div>
+                <strong id="court-prompt">Opening statement</strong>
+                <div id="court-choices" class="court-choices" style="margin-top:10px;"></div>
+            </div>
+
+            <div class="court-footer">
+                <span id="court-advice" class="route-details">Choose your response carefully.</span>
+                <button class="warning" id="court-settle-button" onclick="courtSettleCase()">💰 Settle Case</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        "use strict";
+
+        /* =========================================================
+           GAME STATE
+        ========================================================= */
+
+        const STARTING_CASH = 10000000;
+        const TICK_TIME = 1000;
+        const SECONDS_PER_WEEK = 4;
+
+        let gameState = {
+            cash: STARTING_CASH,
+            week: 1,
+            fleet: [],
+            routes: [],
+            reputation: 50,
+            marketingWeeks: 0,
+            marketingBonus: 0,
+            staffWeeks: 0,
+            staffBonus: 0,
+            loan: 0,
+            loanDueWeek: 0,
+            tickSeconds: 0,
+            airlineName: "SkyHigh Airlines",
+            theme: "classic",
+            lifetimeRevenue: 0,
+            lifetimeExpenses: 0,
+            casinoWins: 0,
+            casinoLosses: 0,
+            casinoProfit: 0,
+            totalFlights: 0,
+            blackjackWins: 0,
+            blackjackLosses: 0,
+            pokerWins: 0,
+            pokerLosses: 0,
+            lawyers: 0,
+            lawsuitRisk: 20,
+            gamblingRisk: 0,
+            legalCheckSeconds: 0,
+            activeLawsuit: false,
+            lawsuitSettlement: 0,
+            totalLawsuits: 0,
+            crimeWins: 0,
+            crimeLosses: 0,
+            planesStolen: 0,
+            crimeProfit: 0,
+            crimeHeat: 0
+        };
+
+        let planeIdCounter = 1;
+        let routeIdCounter = 1;
+        let gameTimer = null;
+
+        /* =========================================================
+           AIRCRAFT
+        ========================================================= */
+
+        const aircraftCatalog = [
+            {
+                id: "prop",
+                name: "SkyStream Turboprop",
+                cost: 1500000,
+                capacity: 50,
+                range: 1200,
+                weeklyMaintenance: 15000
+            },
+            {
+                id: "regional",
+                name: "AeroJet 320",
+                cost: 5000000,
+                capacity: 150,
+                range: 3500,
+                weeklyMaintenance: 50000
+            },
+            {
+                id: "widebody",
+                name: "Stratosphere 777",
+                cost: 12000000,
+                capacity: 350,
+                range: 8000,
+                weeklyMaintenance: 120000
+            }
+        ];
+
+        /* =========================================================
+           DESTINATIONS
+        ========================================================= */
+
+        const destinationCatalog = [
+            {
+                id: "chicago",
+                city: "Chicago (ORD)",
+                distance: 800,
+                demand: 60,
+                baseTicketPrice: 180
+            },
+            {
+                id: "london",
+                city: "London (LHR)",
+                distance: 3400,
+                demand: 85,
+                baseTicketPrice: 450
+            },
+            {
+                id: "paris",
+                city: "Paris (CDG)",
+                distance: 3600,
+                demand: 75,
+                baseTicketPrice: 480
+            },
+            {
+                id: "tokyo",
+                city: "Tokyo (HND)",
+                distance: 5900,
+                demand: 90,
+                baseTicketPrice: 850
+            },
+            {
+                id: "sydney",
+                city: "Sydney (SYD)",
+                distance: 9900,
+                demand: 95,
+                baseTicketPrice: 1200
+            }
+        ];
+
+        /* =========================================================
+           HELPERS
+        ========================================================= */
+
+        function formatMoney(amount) {
+            return "$" + Math.round(amount).toLocaleString();
+        }
+
+        function formatNumber(amount) {
+            return Math.round(amount).toLocaleString();
+        }
+
+        function getAircraftById(id) {
+            return gameState.fleet.find(p => p.uniqueId === id);
+        }
+
+        function getRouteById(id) {
+            return gameState.routes.find(r => r.id === id);
+        }
+
+        function getDestination(id) {
+            return destinationCatalog.find(d => d.id === id);
+        }
+
+        function getAircraftModel(id) {
+            return aircraftCatalog.find(a => a.id === id);
+        }
+
+        function showNotification(message, type = "success") {
+            const box = document.getElementById("notification");
+
+            box.textContent = message;
+            box.className = "notification " + type + " show";
+
+            clearTimeout(showNotification.timer);
+
+            showNotification.timer = setTimeout(() => {
+                box.classList.remove("show");
+            }, 2500);
+        }
+
+        /* =========================================================
+           LOG
+        ========================================================= */
+
+        function logMessage(message) {
+            const logBox = document.getElementById("log-box");
+
+            const entry = document.createElement("div");
+            entry.className = "log-entry";
+
+            entry.textContent = `[Wk ${gameState.week}] ${message}`;
+
+            logBox.appendChild(entry);
+
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        /* =========================================================
+           INITIALIZATION
+        ========================================================= */
+
+        function initGame() {
+            applyTheme(gameState.theme || "classic");
+            updateAirlineBranding();
+            renderMarketplace();
+            renderRoutePlanner();
+            updateUI();
+            updateMenuStats();
+
+            if (gameTimer) {
+                clearInterval(gameTimer);
+            }
+
+            gameTimer = setInterval(progressGameTick, TICK_TIME);
+
+            // Show the menu first unless a save is already available.
+            const hasSave = !!localStorage.getItem("skyhighAirlineSave");
+            if (hasSave) {
+                showStartMenu();
+            } else {
+                showStartMenu();
+            }
+        }
+
+
+        /* =========================================================
+           START MENU / THEMES / STATISTICS
+        ========================================================= */
+
+        function applyTheme(theme) {
+            document.body.classList.remove(
+                "theme-ocean", "theme-sunset", "theme-midnight", "theme-emerald"
+            );
+
+            if (theme && theme !== "classic") {
+                document.body.classList.add("theme-" + theme);
+            }
+
+            document.querySelectorAll(".theme-option").forEach(option => {
+                option.classList.toggle(
+                    "selected",
+                    option.dataset.theme === (theme || "classic")
+                );
+            });
+        }
+
+        function selectTheme(theme) {
+            gameState.theme = theme;
+            applyTheme(theme);
+            updateMenuStats();
+        }
+
+        function updateAirlineBranding() {
+            const name = (gameState.airlineName || "SkyHigh Airlines").trim() || "SkyHigh Airlines";
+            gameState.airlineName = name;
+
+            const title = document.getElementById("airline-title");
+            const nameInput = document.getElementById("airline-name-input");
+
+            if (title) title.textContent = "✈️ " + name;
+            document.title = name + " — Airline Manager";
+            if (nameInput && document.activeElement !== nameInput) {
+                nameInput.value = name;
+            }
+        }
+
+        function showStartMenu() {
+            const menu = document.getElementById("start-menu");
+            if (!menu) return;
+
+            const saved = localStorage.getItem("skyhighAirlineSave");
+            const hasProgress = !!saved && (
+                gameState.fleet.length > 0 ||
+                gameState.routes.length > 0 ||
+                gameState.week > 1 ||
+                gameState.cash !== STARTING_CASH
+            );
+
+            document.getElementById("airline-name-input").value =
+                gameState.airlineName || "SkyHigh Airlines";
+
+            applyTheme(gameState.theme || "classic");
+            updateMenuStats();
+            menu.classList.remove("hidden");
+
+            const continueButton = menu.querySelector(
+                'button[onclick="continueAirline()"]'
+            );
+            if (continueButton) {
+                continueButton.disabled = !hasProgress;
+                continueButton.textContent = hasProgress
+                    ? "▶️ Continue Saved Game"
+                    : "▶️ No Saved Game";
+            }
+        }
+
+        function openStartMenu() {
+            if (gameTimer) clearInterval(gameTimer);
+            showStartMenu();
+        }
+
+        function startNewAirline() {
+            const nameInput = document.getElementById("airline-name-input");
+            const name = (nameInput.value || "").trim();
+
+            if (!name) {
+                showNotification("Please enter an airline name.", "error");
+                return;
+            }
+
+            const confirmed = gameState.fleet.length > 0 || gameState.routes.length > 0
+                ? confirm("Start a new airline? Your current airline will be replaced.")
+                : true;
+
+            if (!confirmed) return;
+
+            const theme = gameState.theme || "classic";
+
+            gameState = {
+                cash: STARTING_CASH,
+                week: 1,
+                fleet: [],
+                routes: [],
+                reputation: 50,
+                marketingWeeks: 0,
+                marketingBonus: 0,
+                staffWeeks: 0,
+                staffBonus: 0,
+                loan: 0,
+                loanDueWeek: 0,
+                tickSeconds: 0,
+                airlineName: name,
+                theme: theme,
+                lifetimeRevenue: 0,
+                lifetimeExpenses: 0,
+                casinoWins: 0,
+                casinoLosses: 0,
+                casinoProfit: 0,
+                totalFlights: 0,
+                blackjackWins: 0,
+                blackjackLosses: 0,
+                pokerWins: 0,
+                pokerLosses: 0,
+                lawyers: 0,
+                lawsuitRisk: 20,
+                legalCheckSeconds: 0,
+                activeLawsuit: false,
+                lawsuitSettlement: 0,
+                totalLawsuits: 0,
+                crimeWins: 0,
+                crimeLosses: 0,
+                planesStolen: 0,
+                crimeProfit: 0,
+                crimeHeat: 0
+            };
+
+            planeIdCounter = 1;
+            routeIdCounter = 1;
+
+            document.getElementById("log-box").innerHTML = "";
+            applyTheme(theme);
+            updateAirlineBranding();
+            renderMarketplace();
+            renderRoutePlanner();
+            updateUI();
+            logMessage("New airline launched. Management, finance and corporate risk systems are ready.");
+            saveGame(true);
+
+            document.getElementById("start-menu").classList.add("hidden");
+
+            if (gameTimer) clearInterval(gameTimer);
+            gameTimer = setInterval(progressGameTick, TICK_TIME);
+
+            showNotification(`Welcome, ${name}!`, "success");
+        }
+
+        function continueAirline() {
+            const raw = localStorage.getItem("skyhighAirlineSave");
+
+            if (!raw) {
+                showNotification("No saved airline found.", "warning");
+                return;
+            }
+
+            loadGame();
+
+            setTimeout(() => {
+                document.getElementById("start-menu").classList.add("hidden");
+                if (gameTimer) clearInterval(gameTimer);
+                gameTimer = setInterval(progressGameTick, TICK_TIME);
+            }, 50);
+        }
+
+        function updateMenuStats() {
+            const preview = document.getElementById("menu-stats-preview");
+            if (!preview) return;
+
+            const weeklyProfit = calculateEstimatedWeeklyProfit();
+            preview.innerHTML = `
+                <div class="career-stat">
+                    <span>Airline</span>
+                    <strong>${escapeHtml(gameState.airlineName || "SkyHigh Airlines")}</strong>
+                </div>
+                <div class="career-stat">
+                    <span>Cash</span>
+                    <strong>${formatMoney(gameState.cash)}</strong>
+                </div>
+                <div class="career-stat">
+                    <span>Fleet</span>
+                    <strong>${gameState.fleet.length}</strong>
+                </div>
+                <div class="career-stat">
+                    <span>Routes</span>
+                    <strong>${gameState.routes.length}</strong>
+                </div>
+                <div class="career-stat">
+                    <span>Current Week</span>
+                    <strong>${gameState.week}</strong>
+                </div>
+                <div class="career-stat">
+                    <span>Weekly Profit</span>
+                    <strong>${formatMoney(weeklyProfit)}</strong>
+                </div>
+            `;
+        }
+
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>"']/g, char => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            }[char]));
+        }
+
+        function openStats() {
+            const modal = document.getElementById("stats-modal");
+            const grid = document.getElementById("full-stats-grid");
+            const name = document.getElementById("stats-airline-name");
+
+            if (!modal || !grid) return;
+
+            const weeklyProfit = calculateEstimatedWeeklyProfit();
+
+            name.textContent =
+                `${gameState.airlineName || "SkyHigh Airlines"} • Week ${gameState.week}`;
+
+            grid.innerHTML = `
+                <div class="career-stat"><span>Cash Balance</span><strong>${formatMoney(gameState.cash)}</strong></div>
+                <div class="career-stat"><span>Lifetime Revenue</span><strong>${formatMoney(gameState.lifetimeRevenue || 0)}</strong></div>
+                <div class="career-stat"><span>Fleet Size</span><strong>${gameState.fleet.length}</strong></div>
+                <div class="career-stat"><span>Active Routes</span><strong>${gameState.routes.length}</strong></div>
+                <div class="career-stat"><span>Total Flights</span><strong>${formatNumber(gameState.totalFlights || 0)}</strong></div>
+                <div class="career-stat"><span>Reputation</span><strong>${Math.round(gameState.reputation || 50)}/100</strong></div>
+                <div class="career-stat"><span>Weekly Profit</span><strong>${formatMoney(weeklyProfit)}</strong></div>
+                <div class="career-stat"><span>Income / Second</span><strong>${formatMoney(weeklyProfit / SECONDS_PER_WEEK)}/sec</strong></div>
+                <div class="career-stat"><span>Casino Wins</span><strong>${gameState.casinoWins || 0}</strong></div>
+                <div class="career-stat"><span>Casino Losses</span><strong>${gameState.casinoLosses || 0}</strong></div>
+                <div class="career-stat"><span>Blackjack W/L</span><strong>${gameState.blackjackWins || 0} / ${gameState.blackjackLosses || 0}</strong></div>
+                <div class="career-stat"><span>Poker W/L</span><strong>${gameState.pokerWins || 0} / ${gameState.pokerLosses || 0}</strong></div>
+                <div class="career-stat"><span>Casino Net</span><strong>${formatMoney(gameState.casinoProfit || 0)}</strong></div>
+                <div class="career-stat"><span>Court Cases Won</span><strong>${gameState.courtCasesWon || 0}</strong></div>
+                <div class="career-stat"><span>Court Cases Lost</span><strong>${gameState.courtCasesLost || 0}</strong></div>
+                <div class="career-stat"><span>Total Lawsuits</span><strong>${gameState.totalLawsuits || 0}</strong></div>
+                <div class="career-stat"><span>Outstanding Loan</span><strong>${formatMoney(gameState.loan || 0)}</strong></div>
+            `;
+
+            modal.classList.remove("hidden");
+        }
+
+        function closeStats() {
+            const modal = document.getElementById("stats-modal");
+            if (modal) modal.classList.add("hidden");
+        }
+
+        function closeStatsIfBackdrop(event) {
+            if (event.target.id === "stats-modal") closeStats();
+        }
+
+        /* =========================================================
+           AIRCRAFT MARKETPLACE
+        ========================================================= */
+
+        function renderMarketplace() {
+            const market = document.getElementById("aircraft-market");
+
+            market.innerHTML = "";
+
+            aircraftCatalog.forEach(model => {
+
+                const canAfford = gameState.cash >= model.cost;
+
+                const card = document.createElement("div");
+                card.className = "item-card";
+
+                card.innerHTML = `
+            <div>
+                <h4>${model.name}</h4>
+
+                <p>👥 Capacity: ${model.capacity} passengers</p>
+                <p>📏 Range: ${formatNumber(model.range)} km</p>
+                <p>🔧 Maintenance: ${formatMoney(model.weeklyMaintenance)}/week</p>
+
+                <p class="price">
+                    Purchase price: ${formatMoney(model.cost)}
+                </p>
+            </div>
+
+            <button
+                ${canAfford ? "" : "disabled"}
+                onclick="buyAircraft('${model.id}')">
+                ${canAfford ? "Buy Aircraft" : "Insufficient Funds"}
+            </button>
+        `;
+
+                market.appendChild(card);
+            });
+        }
+
+        /* =========================================================
+           BUY AIRCRAFT
+        ========================================================= */
+
+        function buyAircraft(catalogId) {
+
+            const model = getAircraftModel(catalogId);
+
+            if (!model) {
+                showNotification("Aircraft not found.", "error");
+                return;
+            }
+
+            if (gameState.cash < model.cost) {
+                showNotification(
+                    `You need ${formatMoney(model.cost - gameState.cash)} more.`,
+                    "error"
+                );
+
+                return;
+            }
+
+            const newPlane = {
+                uniqueId: `AC-${planeIdCounter++}`,
+                modelId: model.id,
+                name: model.name,
+                cost: model.cost,
+                capacity: model.capacity,
+                range: model.range,
+                weeklyMaintenance: model.weeklyMaintenance,
+                assignedRouteId: null,
+                totalRevenue: 0,
+                flights: 0
+            };
+
+            gameState.cash -= model.cost;
+            gameState.lifetimeExpenses = (gameState.lifetimeExpenses || 0) + model.cost;
+
+            gameState.fleet.push(newPlane);
+
+            logMessage(
+                `Purchased ${model.name} (${newPlane.uniqueId}) for ${formatMoney(model.cost)}.`
+            );
+
+            showNotification(
+                `${model.name} purchased successfully!`,
+                "success"
+            );
+
+            updateUI();
+        }
+
+        /* =========================================================
+           ROUTE PLANNER
+        ========================================================= */
+
+        function renderRoutePlanner() {
+
+            const container = document.getElementById("route-market");
+
+            container.innerHTML = "";
+
+            destinationCatalog.forEach(destination => {
+
+                const alreadyExists = gameState.routes.some(
+                    route => route.destinationId === destination.id
+                );
+
+                const availablePlanes = gameState.fleet.filter(
+                    plane =>
+                        plane.assignedRouteId === null &&
+                        plane.range >= destination.distance
+                );
+
+                const card = document.createElement("div");
+                card.className = "item-card";
+
+                let aircraftOptions = "";
+
+                if (availablePlanes.length > 0) {
+                    aircraftOptions = availablePlanes.map(plane => `
+                <option value="${plane.uniqueId}">
+                    ${plane.uniqueId} — ${plane.name}
+                </option>
+            `).join("");
+                }
+
+                card.innerHTML = `
+            <div>
+                <h4>Hub → ${destination.city}</h4>
+
+                <p>📏 Distance: ${formatNumber(destination.distance)} km</p>
+                <p>📈 Demand: ${destination.demand}%</p>
+                <p>🎟️ Ticket: ${formatMoney(destination.baseTicketPrice)}</p>
+            </div>
+
+            ${alreadyExists
+                        ? `<button disabled>Route Already Active</button>`
+                        : availablePlanes.length === 0
+                            ? `<button disabled>No Suitable Aircraft</button>`
+                            : `
+                        <select id="plane-select-${destination.id}">
+                            ${aircraftOptions}
+                        </select>
+
+                        <button
+                            class="success"
+                            onclick="createRoute('${destination.id}')">
+                            Establish Route
+                        </button>
+                    `
+                    }
+        `;
+
+                container.appendChild(card);
+            });
+        }
+
+        /* =========================================================
+           CREATE ROUTE
+        ========================================================= */
+
+        function createRoute(destinationId) {
+
+            const destination = getDestination(destinationId);
+
+            if (!destination) {
+                showNotification("Destination not found.", "error");
+                return;
+            }
+
+            if (gameState.routes.some(
+                route => route.destinationId === destinationId
+            )) {
+                showNotification("You already operate this route.", "error");
+                return;
+            }
+
+            const select = document.getElementById(
+                `plane-select-${destinationId}`
+            );
+
+            if (!select) {
+                showNotification("No aircraft is available for this route.", "error");
+                return;
+            }
+
+            const plane = getAircraftById(select.value);
+
+            if (!plane) {
+                showNotification("Aircraft not found.", "error");
+                return;
+            }
+
+            if (plane.assignedRouteId !== null) {
+                showNotification("That aircraft is already assigned.", "error");
+                return;
+            }
+
+            if (plane.range < destination.distance) {
+                showNotification(
+                    `${plane.name} does not have enough range.`,
+                    "error"
+                );
+                return;
+            }
+
+            const route = {
+                id: `RT-${routeIdCounter++}`,
+                destinationId: destination.id,
+                destination: destination.city,
+                distance: destination.distance,
+                demand: destination.demand,
+                ticketPrice: destination.baseTicketPrice,
+                aircraftId: plane.uniqueId,
+                weeklyRevenue: 0,
+                weeklyPassengers: 0,
+                flights: 0
+            };
+
+            gameState.routes.push(route);
+
+            plane.assignedRouteId = route.id;
+
+            logMessage(
+                `Route established: Hub → ${destination.city} using ${plane.uniqueId}.`
+            );
+
+            showNotification(
+                `Route to ${destination.city} established!`,
+                "success"
+            );
+
+            updateUI();
+        }
+
+        /* =========================================================
+           REMOVE ROUTE
+        ========================================================= */
+
+        function removeRoute(routeId) {
+
+            const route = getRouteById(routeId);
+
+            if (!route) return;
+
+            const plane = getAircraftById(route.aircraftId);
+
+            if (plane) {
+                plane.assignedRouteId = null;
+            }
+
+            gameState.routes = gameState.routes.filter(
+                r => r.id !== routeId
+            );
+
+            logMessage(
+                `Route to ${route.destination} has been closed. ${route.aircraftId} is now idle.`
+            );
+
+            showNotification("Route closed.", "warning");
+
+            updateUI();
+        }
+
+        /* =========================================================
+           FLEET DISPLAY
+        ========================================================= */
+
+        function renderFleet() {
+
+            const container = document.getElementById("fleet-list");
+
+            container.innerHTML = "";
+
+            if (gameState.fleet.length === 0) {
+                container.innerHTML = `
+            <p class="empty">
+                No aircraft purchased yet.
+            </p>
+        `;
+                return;
+            }
+
+            gameState.fleet.forEach(plane => {
+
+                const route = plane.assignedRouteId
+                    ? getRouteById(plane.assignedRouteId)
+                    : null;
+
+                const item = document.createElement("div");
+                item.className = "route-item";
+
+                item.innerHTML = `
+            <div>
+                <div class="route-header">
+                    <strong>${plane.uniqueId}</strong>
+
+                    <span class="badge ${route ? "" : "idle"}">
+                        ${route ? "ACTIVE" : "IDLE"}
+                    </span>
+                </div>
+
+                <div class="route-details">
+                    ${plane.name}<br>
+                    Capacity: ${plane.capacity} passengers<br>
+                    Range: ${formatNumber(plane.range)} km<br>
+                    Flights: ${plane.flights}<br>
+                    Lifetime revenue: ${formatMoney(plane.totalRevenue)}
+                    ${route
+                        ? `<br>Route: Hub → ${route.destination}`
+                        : ""
+                    }
+                </div>
+            </div>
+
+            ${route
+                        ? `
+                    <button
+                        class="danger small-button"
+                        onclick="removeRoute('${route.id}')">
+                        Close Route
+                    </button>
+                `
+                        : ""
+                    }
+        `;
+
+                container.appendChild(item);
+            });
+        }
+
+        /* =========================================================
+           ROUTE DISPLAY
+        ========================================================= */
+
+        function renderActiveRoutes() {
+
+            const container = document.getElementById(
+                "active-routes-list"
+            );
+
+            container.innerHTML = "";
+
+            if (gameState.routes.length === 0) {
+                container.innerHTML = `
+            <p class="empty">
+                No active flight routes.
+            </p>
+        `;
+                return;
+            }
+
+            gameState.routes.forEach(route => {
+
+                const plane = getAircraftById(route.aircraftId);
+
+                const item = document.createElement("div");
+                item.className = "route-item";
+
+                item.innerHTML = `
+            <div class="route-header">
+                <strong>Hub → ${route.destination}</strong>
+                <span class="badge">ACTIVE</span>
+            </div>
+
+            <div class="route-details">
+                Aircraft: ${plane ? plane.uniqueId : "Unknown"}<br>
+                Weekly passengers: ${formatNumber(route.weeklyPassengers)}<br>
+                Weekly revenue: ${formatMoney(route.weeklyRevenue)}<br>
+                Flights operated: ${route.flights}
+            </div>
+
+            <button
+                class="danger small-button"
+                onclick="removeRoute('${route.id}')">
+                Close Route
+            </button>
+        `;
+
+                container.appendChild(item);
+            });
+        }
+
+        /* =========================================================
+           PROFIT CALCULATION
+        ========================================================= */
+
+        function calculateWeeklyRevenue(route, plane) {
+
+            if (!plane) return 0;
+
+            /*
+                A route gets several flights per simulated week.
+        
+                Longer flights operate less frequently.
+                Demand determines how full the aircraft is.
+            */
+
+            const flightDistance = route.distance;
+
+            let flightsPerWeek;
+
+            if (flightDistance <= 1500) {
+                flightsPerWeek = 14;
+            } else if (flightDistance <= 4000) {
+                flightsPerWeek = 10;
+            } else if (flightDistance <= 7000) {
+                flightsPerWeek = 7;
+            } else {
+                flightsPerWeek = 5;
+            }
+
+            const loadFactor = Math.min(
+                1,
+                0.45 + (route.demand / 100) * 0.5
+            );
+
+            const passengersPerFlight = Math.max(
+                1,
+                Math.floor(plane.capacity * loadFactor)
+            );
+
+            const passengers = passengersPerFlight * flightsPerWeek;
+
+            /*
+                Fuel/operating cost increases with distance.
+            */
+            const operatingCost =
+                flightDistance *
+                flightsPerWeek *
+                0.08;
+
+            const passengerRevenue =
+                passengers *
+                route.ticketPrice;
+
+            const managementMultiplier =
+                1 + (gameState.marketingBonus || 0) + (gameState.staffBonus || 0);
+
+            return Math.max(
+                0,
+                (passengerRevenue * managementMultiplier) - operatingCost
+            );
+        }
+
+        /* =========================================================
+           LAWSUITS / LEGAL DEPARTMENT
+        ========================================================= */
+
+        const LAWSUIT_CHECK_INTERVAL = 120; // 120 real seconds = about 2 minutes
+        const BASE_LAWSUIT_RISK = 20;
+        const GAMBLING_RISK_PER_GAME = 1.5;
+
+        function getLawsuitRisk() {
+            const lawyerReduction = (gameState.lawyers || 0) * 3;
+            return Math.max(2, Math.min(95, BASE_LAWSUIT_RISK + (gameState.gamblingRisk || 0) + ((gameState.crimeHeat || 0) * 0.45) - lawyerReduction));
+        }
+
+        function lawyerCost() {
+            return 500000 * Math.pow(1.35, gameState.lawyers || 0);
+        }
+
+        function getSettlementCost() {
+            const base = 1000000 + ((gameState.totalLawsuits || 0) * 250000);
+            const lawyerDiscount = (gameState.lawyers || 0) * 100000;
+            return Math.max(250000, base - lawyerDiscount);
+        }
+
+        function registerGamblingRisk() {
+            gameState.gamblingRisk = (gameState.gamblingRisk || 0) + GAMBLING_RISK_PER_GAME;
+            updateLegalUI();
+        }
+
+        function hireLawyer() {
+            const cost = lawyerCost();
+            if (gameState.cash < cost) {
+                showNotification(`You need ${formatMoney(cost - gameState.cash)} more to hire a lawyer.`, "error");
+                return;
+            }
+
+            gameState.cash -= cost;
+            gameState.lifetimeExpenses = (gameState.lifetimeExpenses || 0) + cost;
+            gameState.lawyers = (gameState.lawyers || 0) + 1;
+
+            logMessage(`Hired airline lawyer #${gameState.lawyers} for ${formatMoney(cost)}.`);
+            showNotification("Lawyer hired. Lawsuit risk reduced.", "success");
+            updateUI();
+        }
+
+        function settleLawsuit() {
+            if (!gameState.activeLawsuit) {
+                showNotification("Your airline does not have an active lawsuit.", "warning");
+                return;
+            }
+
+            const cost = gameState.lawsuitSettlement || getSettlementCost();
+            if (gameState.cash < cost) {
+                showNotification(`You need ${formatMoney(cost - gameState.cash)} more to settle the lawsuit.`, "error");
+                return;
+            }
+
+            gameState.cash -= cost;
+            gameState.lifetimeExpenses = (gameState.lifetimeExpenses || 0) + cost;
+            gameState.activeLawsuit = false;
+            gameState.lawsuitSettlement = 0;
+
+            logMessage(`Lawsuit settled for ${formatMoney(cost)}.`);
+            showNotification("Lawsuit settled. Your airline is safe for now.", "success");
+            updateUI();
+        }
+
+        function triggerLawsuit() {
+            gameState.activeLawsuit = true;
+            gameState.totalLawsuits = (gameState.totalLawsuits || 0) + 1;
+            gameState.lawsuitSettlement = getSettlementCost();
+
+            const lawyers = gameState.lawyers || 0;
+            const defenseMessage = lawyers > 0
+                ? `${lawyers} lawyer(s) are preparing your defense.`
+                : "You have no lawyers. Hiring one may reduce future risk.";
+
+            logMessage(`🚨 LAWSUIT! Settlement demand: ${formatMoney(gameState.lawsuitSettlement)}. ${defenseMessage}`);
+            showNotification("🚨 Your airline has been sued! Court is opening.", "error");
+            updateLegalUI();
+            setTimeout(() => startCourtCase(), 450);
+        }
+
+        function processLegalCheck() {
+            gameState.legalCheckSeconds = (gameState.legalCheckSeconds || 0) + 1;
+
+            if (gameState.legalCheckSeconds >= LAWSUIT_CHECK_INTERVAL) {
+                gameState.legalCheckSeconds = 0;
+
+                if (!gameState.activeLawsuit && Math.random() < getLawsuitRisk() / 100) {
+                    triggerLawsuit();
+                } else {
+                    logMessage(`Legal review completed. No new lawsuit. Current risk: ${getLawsuitRisk().toFixed(1)}%.`);
+                }
+            }
+
+            updateLegalUI();
+        }
+
+        function updateLegalUI() {
+            const risk = getLawsuitRisk();
+            const lawyerEl = document.getElementById("lawyer-count");
+            const riskEl = document.getElementById("lawsuit-risk");
+            const countdownEl = document.getElementById("lawsuit-countdown");
+            const statusEl = document.getElementById("lawsuit-status");
+            const alertEl = document.getElementById("legal-alert");
+            const costEl = document.getElementById("lawyer-cost");
+            const settlementEl = document.getElementById("settlement-cost");
+
+            if (lawyerEl) lawyerEl.textContent = gameState.lawyers || 0;
+            if (riskEl) riskEl.textContent = risk.toFixed(1) + "%";
+            if (countdownEl) countdownEl.textContent = Math.max(0, LAWSUIT_CHECK_INTERVAL - (gameState.legalCheckSeconds || 0)) + "s";
+            if (statusEl) statusEl.textContent = gameState.activeLawsuit ? "ACTIVE" : "None";
+            if (costEl) costEl.textContent = formatMoney(lawyerCost());
+            if (settlementEl) settlementEl.textContent = gameState.activeLawsuit
+                ? formatMoney(gameState.lawsuitSettlement || getSettlementCost())
+                : "No active settlement";
+
+            if (alertEl) {
+                alertEl.className = "legal-alert" + (gameState.activeLawsuit ? " danger" : "");
+                alertEl.textContent = gameState.activeLawsuit
+                    ? `🚨 Lawsuit active! Pay ${formatMoney(gameState.lawsuitSettlement || getSettlementCost())} to settle it.`
+                    : `Your airline currently has no active lawsuit. Lawyers reduce risk by 3 points each. Gambling risk: ${(gameState.gamblingRisk || 0).toFixed(1)} • Crime heat: ${Math.round(gameState.crimeHeat || 0)}.`;
+            }
+        }
+
+        /* =========================================================
+           GAME TICK
+        ========================================================= */
+
+        function progressGameTick() {
+            // Real-time income: the estimated weekly profit is divided across 4 seconds.
+            const weeklyProfit = calculateEstimatedWeeklyProfit();
+            const perSecond = weeklyProfit / SECONDS_PER_WEEK;
+            gameState.cash += perSecond;
+
+            if (perSecond >= 0) {
+                gameState.lifetimeRevenue = (gameState.lifetimeRevenue || 0) + perSecond;
+            } else {
+                gameState.lifetimeExpenses = (gameState.lifetimeExpenses || 0) + Math.abs(perSecond);
+            }
+
+            if (gameState.tickSeconds === undefined) gameState.tickSeconds = 0;
+            gameState.tickSeconds++;
+            processLegalCheck();
+
+            // Four seconds = one in-game week.
+            if (gameState.tickSeconds >= SECONDS_PER_WEEK) {
+                gameState.tickSeconds = 0;
+                gameState.week++;
+
+                processManagementEffects();
+
+                // Crime heat cools down over time if you stop taking jobs.
+                gameState.crimeHeat = Math.max(0, (gameState.crimeHeat || 0) - 4);
+
+                let totalRevenue = 0;
+                let totalMaintenance = 0;
+
+                gameState.fleet.forEach(plane => {
+                    totalMaintenance += plane.weeklyMaintenance;
+                });
+
+                gameState.routes.forEach(route => {
+                    const plane = getAircraftById(route.aircraftId);
+                    if (!plane) return;
+
+                    const revenue = calculateWeeklyRevenue(route, plane);
+                    route.weeklyRevenue = revenue;
+
+                    let flightsPerWeek;
+                    if (route.distance <= 1500) flightsPerWeek = 14;
+                    else if (route.distance <= 4000) flightsPerWeek = 10;
+                    else if (route.distance <= 7000) flightsPerWeek = 7;
+                    else flightsPerWeek = 5;
+
+                    const loadFactor = Math.min(1, 0.45 + (route.demand / 100) * 0.5);
+                    const passengers = Math.floor(plane.capacity * loadFactor) * flightsPerWeek;
+
+                    route.weeklyPassengers = passengers;
+                    route.flights += flightsPerWeek;
+                    plane.flights += flightsPerWeek;
+                    gameState.totalFlights = (gameState.totalFlights || 0) + flightsPerWeek;
+                    plane.totalRevenue += revenue;
+                    totalRevenue += revenue;
+                });
+
+                const net = totalRevenue - totalMaintenance;
+                logMessage(
+                    `Weekly report: Revenue ${formatMoney(totalRevenue)}, maintenance ${formatMoney(totalMaintenance)}, net ${formatMoney(net)}.`
+                );
+                saveGame(true);
+            }
+
+            updateUI();
+        }
+
+        /* =========================================================
+           CASINO
+        ========================================================= */
+
+        function switchCasinoGame(game) {
+            document.querySelectorAll('.casino-game').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.casino-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById('casino-' + game).classList.add('active');
+            document.getElementById('tab-' + game).classList.add('active');
+        }
+
+        function casinoHistory(message) {
+            const box = document.getElementById('casino-history');
+            const div = document.createElement('div');
+            div.textContent = `[Wk ${gameState.week}] ${message}`;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function casinoBet(id) { return Number(document.getElementById(id).value); }
+        function casinoCanBet(bet) {
+            if (gameState.cash < bet) { showNotification('Not enough airline cash for that bet.', 'error'); return false; }
+            return true;
+        }
+
+        function playCasino() {
+            const bet = casinoBet('casino-bet'), choice = document.getElementById('casino-choice').value;
+            if (!casinoCanBet(bet)) return;
+            gameState.cash -= bet;
+            registerGamblingRisk();
+            const roll = Math.floor(Math.random() * 37);
+            const color = roll === 0 ? 'green' : (roll % 2 ? 'red' : 'black');
+            if (color === choice) {
+                const payout = choice === 'green' ? bet * 14 : bet * 2;
+                const profit = payout - bet;
+                gameState.cash += payout; gameState.casinoWins++; gameState.casinoProfit += profit;
+                document.getElementById('casino-result').textContent = `🎉 ${color.toUpperCase()} ${roll}! You won ${formatMoney(profit)} profit.`;
+                showNotification(`Roulette win: +${formatMoney(profit)}`, 'success'); logMessage(`Roulette: ${color} ${roll} — won ${formatMoney(profit)}.`); casinoHistory(`Roulette win +${formatMoney(profit)}`);
+            } else {
+                gameState.casinoLosses++; gameState.casinoProfit -= bet;
+                document.getElementById('casino-result').textContent = `💥 ${color.toUpperCase()} ${roll}! You lost ${formatMoney(bet)}.`;
+                showNotification(`Roulette loss: -${formatMoney(bet)}`, 'error'); logMessage(`Roulette: ${color} ${roll} — lost ${formatMoney(bet)}.`); casinoHistory(`Roulette loss -${formatMoney(bet)}`);
+            }
+            updateUI();
+        }
+
+        // ---------- Blackjack ----------
+        let bj = { active: false, player: [], dealer: [], bet: 0, doubled: false };
+        const suits = ['♠', '♥', '♦', '♣'];
+        const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        function makeDeck() { const d = []; for (const s of suits) for (const r of ranks) d.push({ s, r }); return d.sort(() => Math.random() - .5); }
+        function cardText(c) { return c.r + c.s; }
+        function cardIsRed(c) { return c.s === '♥' || c.s === '♦'; }
+        function renderCards(id, cards, hideFirst = false) {
+            const el = document.getElementById(id); el.innerHTML = '';
+            cards.forEach((c, i) => { const x = document.createElement('div'); x.className = 'playing-card ' + (cardIsRed(c) ? 'red' : '') + (hideFirst && i === 0 ? ' hidden-card' : ''); x.textContent = hideFirst && i === 0 ? '★' : cardText(c); el.appendChild(x); });
+        }
+        function handValue(hand) { let total = 0, aces = 0; hand.forEach(c => { if (c.r === 'A') { total += 11; aces++; } else total += ['K', 'Q', 'J'].includes(c.r) ? 10 : Number(c.r); }); while (total > 21 && aces) { total -= 10; aces--; } return total; }
+        function bjRender(hide = true) { renderCards('bj-player-cards', bj.player); renderCards('bj-dealer-cards', bj.dealer, hide); document.getElementById('bj-player-score').textContent = handValue(bj.player); document.getElementById('bj-dealer-score').textContent = hide ? '?' : handValue(bj.dealer); }
+        function bjControls(active) { ['bj-hit', 'bj-stand', 'bj-double'].forEach(id => document.getElementById(id).disabled = !active); document.getElementById('bj-start').disabled = active; }
+        function startBlackjack() {
+            const bet = casinoBet('blackjack-bet'); if (!casinoCanBet(bet)) return; gameState.cash -= bet;
+            const deck = makeDeck(); bj = { active: true, player: [deck.pop(), deck.pop()], dealer: [deck.pop(), deck.pop()], bet, doubled: false, deck };
+            bjRender(true); bjControls(true); document.getElementById('bj-double').disabled = false;
+            document.getElementById('bj-status').textContent = 'Your move. Hit, stand, or double down.';
+            if (handValue(bj.player) === 21) blackjackStand(true); updateUI();
+        }
+        function finishBlackjack(result, message, payout = 0) {
+            bj.active = false; bjControls(false); document.getElementById('bj-start').disabled = false; bjRender(false);
+            if (payout) gameState.cash += payout;
+            if (result === 'win') { gameState.casinoWins++; gameState.casinoProfit += payout - bj.bet; gameState.blackjackWins++; showNotification(message, 'success'); }
+            else if (result === 'loss') { gameState.casinoLosses++; gameState.casinoProfit -= bj.bet; gameState.blackjackLosses++; showNotification(message, 'error'); }
+            else { gameState.cash += bj.bet; gameState.casinoProfit += 0; message = 'Push — your bet was returned.'; showNotification(message, 'warning'); }
+            document.getElementById('bj-status').textContent = message; casinoHistory(`Blackjack: ${message}`); logMessage(`Blackjack: ${message}`); updateUI();
+        }
+        function blackjackHit() { if (!bj.active) return; bj.player.push(bj.deck.pop()); bjRender(true); if (handValue(bj.player) > 21) finishBlackjack('loss', `Bust! You lost ${formatMoney(bj.bet)}.`); else if (handValue(bj.player) === 21) blackjackStand(); updateUI(); }
+        function blackjackStand(auto = false) {
+            if (!bj.active) return; while (handValue(bj.dealer) < 17) bj.dealer.push(bj.deck.pop()); bjRender(false);
+            const p = handValue(bj.player), d = handValue(bj.dealer);
+            if (p > 21) finishBlackjack('loss', `Bust! You lost ${formatMoney(bj.bet)}.`);
+            else if (d > 21 || p > d) finishBlackjack('win', `You beat the dealer! +${formatMoney(bj.bet)} profit.`, bj.bet * 2);
+            else if (p === d) finishBlackjack('push', 'Push — both hands are tied.');
+            else finishBlackjack('loss', `Dealer wins with ${d}. You lost ${formatMoney(bj.bet)}.`);
+        }
+        function blackjackDouble() { if (!bj.active) return; if (gameState.cash < bj.bet) { showNotification('You need enough cash to double this hand.', 'error'); return; } gameState.cash -= bj.bet; bj.bet *= 2; bj.doubled = true; blackjackHit(); if (bj.active) blackjackStand(); }
+
+        // ---------- Texas Hold'em ----------
+        let poker = { active: false, deck: [], player: [], dealer: [], board: [], bet: 0, pot: 0, playerContrib: 0, dealerContrib: 0, toCall: 0, stage: 0 };
+        function pokerStartState() { return { active: true, deck: makeDeck(), player: [], dealer: [], board: [], bet: casinoBet('poker-bet'), pot: 0, playerContrib: 0, dealerContrib: 0, toCall: 0, stage: 0 }; }
+        function drawPoker(n) { const a = []; while (n--) a.push(poker.deck.pop()); return a; }
+        function pokerRender(hide = true) { renderCards('poker-player-cards', poker.player); renderCards('poker-dealer-cards', poker.dealer, hide); renderCards('poker-board', poker.board); document.getElementById('poker-pot').textContent = formatMoney(poker.pot); document.getElementById('poker-to-call').textContent = formatMoney(Math.max(0, poker.toCall - poker.playerContrib)); }
+        function pokerControls(active) { ['poker-check', 'poker-call', 'poker-raise', 'poker-fold'].forEach(id => document.getElementById(id).disabled = !active); document.getElementById('poker-start').disabled = active; }
+        function startPoker() {
+            const bet = casinoBet('poker-bet'); if (!casinoCanBet(bet)) return; gameState.cash -= bet; poker = pokerStartState(); poker.bet = bet; poker.player = drawPoker(2); poker.dealer = drawPoker(2); poker.pot = bet * 2; poker.playerContrib = bet; poker.dealerContrib = bet; pokerRender(true); pokerControls(true); document.getElementById('poker-status').textContent = 'Pre-flop: check, raise, or fold. The dealer will respond automatically.'; updateUI();
+        }
+        function pokerCall() { if (!poker.active) return; const due = Math.max(0, poker.toCall - poker.playerContrib); if (gameState.cash < due) { showNotification('Not enough cash to call.', 'error'); return; } gameState.cash -= due; poker.playerContrib += due; poker.pot += due; poker.toCall = poker.playerContrib; pokerAdvance(); }
+        function pokerCheck() { if (!poker.active) return; if (poker.playerContrib < poker.toCall) { showNotification('You must call or fold.', 'warning'); return; } pokerAdvance(); }
+        function pokerRaise() { if (!poker.active) return; const raise = Math.max(poker.bet, 10000); const target = poker.toCall + raise; const due = target - poker.playerContrib; if (gameState.cash < due) { showNotification('Not enough cash for that raise.', 'error'); return; } gameState.cash -= due; poker.playerContrib += due; poker.pot += due; poker.toCall = poker.playerContrib; document.getElementById('poker-status').textContent = 'You raised. The dealer is deciding...'; setTimeout(() => pokerDealerRespond(true), 350); }
+        function pokerFold() { if (!poker.active) return; pokerFinish(false, 'You folded. Dealer takes the pot.'); }
+        function pokerAdvance() { if (poker.stage === 0) { poker.board.push(...drawPoker(3)); poker.stage = 1; } else if (poker.stage === 1) { poker.board.push(...drawPoker(1)); poker.stage = 2; } else if (poker.stage === 2) { poker.board.push(...drawPoker(1)); poker.stage = 3; } else { pokerShowdown(); return; } pokerRender(true); document.getElementById('poker-status').textContent = ['', 'Flop dealt. Your action.', 'Turn dealt. Your action.', 'River dealt. Your action.'][poker.stage]; pokerDealerRespond(false); updateUI(); }
+        function pokerDealerRespond(afterRaise) { if (!poker.active) return; const strength = Math.random(); if (afterRaise && strength < 0.35) { pokerFinish(true, 'Dealer folded to your raise — you win the pot!'); return; } const due = Math.max(0, poker.playerContrib - poker.dealerContrib); if (due > 0) { if (strength < 0.2) { pokerFinish(true, 'Dealer folded — your pressure paid off!'); return; } if (gameState.cash >= due) { gameState.cash -= due; poker.dealerContrib += due; poker.pot += due; } else { pokerFinish(true, 'Dealer could not match your bet — you win!'); return; } } else if (strength < 0.12 && poker.stage > 0) { pokerFinish(true, 'Dealer folded — you win!'); return; } poker.toCall = poker.dealerContrib; pokerRender(true); if (poker.stage >= 3) { pokerShowdown(); } }
+        function pokerFinish(playerWon, message) { const pot = poker.pot; poker.active = false; pokerControls(false); pokerRender(false); if (playerWon) { gameState.cash += pot; gameState.casinoWins++; gameState.pokerWins++; gameState.casinoProfit += pot - poker.bet; } else { gameState.casinoLosses++; gameState.pokerLosses++; gameState.casinoProfit -= poker.bet; } document.getElementById('poker-status').textContent = message; casinoHistory(`Texas Hold'em: ${message}`); logMessage(`Texas Hold'em: ${message}`); showNotification(message, playerWon ? 'success' : 'error'); updateUI(); }
+        function pokerShowdown() { if (!poker.active) return; const a = pokerBestHand(poker.player.concat(poker.board)), b = pokerBestHand(poker.dealer.concat(poker.board)); let cmp = pokerCompare(a, b); if (cmp > 0) pokerFinish(true, `You win with ${a.name}! Pot: ${formatMoney(poker.pot)}.`); else if (cmp < 0) pokerFinish(false, `Dealer wins with ${b.name}. You lose ${formatMoney(poker.bet)}.`); else { gameState.cash += poker.pot / 2; gameState.casinoProfit += 0; poker.active = false; pokerControls(false); pokerRender(false); document.getElementById('poker-status').textContent = 'Split pot — it is a tie.'; casinoHistory('Texas Hold\'em: split pot.'); updateUI(); } }
+        const handNames = ['High Card', 'Pair', 'Two Pair', 'Three of a Kind', 'Straight', 'Flush', 'Full House', 'Four of a Kind', 'Straight Flush'];
+        function pokerFive(cards) { let vals = cards.map(c => ranks.indexOf(c.r) + 2).sort((a, b) => b - a), counts = {}; vals.forEach(v => counts[v] = (counts[v] || 0) + 1); const flush = cards.every(c => c.s === cards[0].s); const uniq = [...new Set(vals)]; if (uniq.includes(14)) uniq.push(1); let straightHigh = 0; for (let i = 0; i <= uniq.length - 5; i++) { let part = uniq.slice(i, i + 5); if (part[0] - part[4] === 4) { straightHigh = part[0]; break; } } const groups = Object.entries(counts).map(([v, c]) => ({ v: +v, c })).sort((x, y) => y.c - x.c || y.v - x.v); if (flush && straightHigh) return [8, straightHigh]; if (groups[0].c === 4) return [7, groups[0].v, ...vals.filter(v => v !== groups[0].v)]; if (groups[0].c === 3 && groups[1].c === 2) return [6, groups[0].v, groups[1].v]; if (flush) return [5, ...vals]; if (straightHigh) return [4, straightHigh]; if (groups[0].c === 3) return [3, groups[0].v, ...vals.filter(v => v !== groups[0].v)]; const pairs = groups.filter(g => g.c === 2); if (pairs.length >= 2) return [2, pairs[0].v, pairs[1].v, ...vals.filter(v => v !== pairs[0].v && v !== pairs[1].v)]; if (pairs.length === 1) return [1, pairs[0].v, ...vals.filter(v => v !== pairs[0].v)]; return [0, ...vals]; }
+        function pokerBestHand(cards) { let best = null; for (let a = 0; a < cards.length - 4; a++)for (let b = a + 1; b < cards.length - 3; b++)for (let c = b + 1; c < cards.length - 2; c++)for (let d = c + 1; d < cards.length - 1; d++)for (let e = d + 1; e < cards.length; e++) { const h = pokerFive([cards[a], cards[b], cards[c], cards[d], cards[e]]); if (!best || pokerCompare(h, best) > 0) best = h; } best.name = handNames[best[0]]; return best; }
+        function pokerCompare(a, b) { for (let i = 0; i < Math.max(a.length, b.length); i++) { const x = a[i] || 0, y = b[i] || 0; if (x !== y) return x - y; } return 0; }
+
+
+
+        /* =========================================================
+           CRIME ARCADE ENGINE
+           Fictional, game-only mechanics — no real-world guidance.
+        ========================================================= */
+
+        let crime = {
+            active: false,
+            type: null,
+            timer: null,
+            progress: 0,
+            condition: 100,
+            x: 7,
+            y: 50,
+            aircraft: null,
+            lastAction: "",
+            obstacleHits: 0
+        };
+
+        const crimeAircraft = [
+            { name: "AeroJet 320", cost: 5000000, capacity: 150, range: 3500, weeklyMaintenance: 50000 },
+            { name: "Stratosphere 777", cost: 12000000, capacity: 350, range: 8000, weeklyMaintenance: 120000 },
+            { name: "SkyStream Turboprop", cost: 1500000, capacity: 50, range: 1200, weeklyMaintenance: 15000 }
+        ];
+
+        function addCrimeHeat(amount) {
+            gameState.crimeHeat = Math.max(0, Math.min(100, (gameState.crimeHeat || 0) + amount));
+        }
+
+        function crimeLog(message) {
+            const box = document.getElementById("crime-log");
+            if (!box) return;
+            const line = document.createElement("div");
+            line.textContent = message;
+            box.appendChild(line);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function updateCrimeUI() {
+            const heat = Math.round(gameState.crimeHeat || 0);
+            const set = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value;
+            };
+
+            set("crime-heat", heat + "%");
+            set("crime-record", `${gameState.crimeWins || 0} / ${gameState.crimeLosses || 0}`);
+            set("planes-stolen", gameState.planesStolen || 0);
+            set("crime-profit", formatMoney(gameState.crimeProfit || 0));
+
+            const fill = document.getElementById("crime-heat-fill");
+            if (fill) fill.style.width = heat + "%";
+
+            const warning = document.getElementById("crime-warning");
+            if (warning) {
+                warning.textContent = heat >= 75
+                    ? "🚨 EXTREME HEAT: Another crime could trigger an immediate police/legal event."
+                    : heat >= 45
+                        ? "⚠️ HIGH HEAT: Your criminal activity is becoming difficult to ignore."
+                        : "⚠️ The authorities are watching. Keep an eye on your heat.";
+            }
+        }
+
+        function openCrimeModal(title, subtitle) {
+            const modal = document.getElementById("crime-modal");
+            document.getElementById("crime-modal-title").textContent = title;
+            document.getElementById("crime-modal-subtitle").textContent = subtitle;
+            modal.classList.remove("hidden");
+        }
+
+        function closeCrimeModal() {
+            if (crime.timer) clearInterval(crime.timer);
+            crime.timer = null;
+            crime.active = false;
+            document.getElementById("crime-modal").classList.add("hidden");
+            updateUI();
+        }
+
+        function finishCrime(success, reward = 0, message = "") {
+            if (crime.timer) clearInterval(crime.timer);
+            crime.timer = null;
+            crime.active = false;
+
+            if (success) {
+                gameState.crimeWins = (gameState.crimeWins || 0) + 1;
+                gameState.cash += reward;
+                gameState.crimeProfit = (gameState.crimeProfit || 0) + reward;
+                gameState.lifetimeRevenue = (gameState.lifetimeRevenue || 0) + reward;
+                logMessage(`🚨 Crime success: ${message} Reward ${formatMoney(reward)}.`);
+                showNotification(`Crime success! ${formatMoney(reward)} gained.`, "success");
+            } else {
+                gameState.crimeLosses = (gameState.crimeLosses || 0) + 1;
+                const fine = Math.min(500000, Math.max(50000, Math.round(gameState.cash * 0.03)));
+                gameState.cash = Math.max(0, gameState.cash - fine);
+                gameState.lifetimeExpenses = (gameState.lifetimeExpenses || 0) + fine;
+                logMessage(`🚨 Crime failed: ${message} Fine ${formatMoney(fine)}.`);
+                showNotification(`Crime failed. Fine: ${formatMoney(fine)}.`, "error");
+            }
+
+            updateUI();
+        }
+
+        function startPlaneHeist() {
+            if (crime.active) return;
+            const aircraft = crimeAircraft[Math.floor(Math.random() * crimeAircraft.length)];
+
+            crime = {
+                active: true,
+                type: "plane",
+                timer: null,
+                progress: 0,
+                condition: 100,
+                x: 7,
+                y: 50,
+                aircraft,
+                lastAction: "",
+                obstacleHits: 0
+            };
+
+            document.getElementById("crime-heist-ui").style.display = "block";
+            document.getElementById("crime-choice-ui").style.display = "none";
+            document.getElementById("crime-log").innerHTML = "";
+            document.getElementById("flight-plane").style.left = "7%";
+            document.getElementById("flight-plane").style.top = "50%";
+            document.getElementById("heist-aircraft").textContent = aircraft.name;
+            document.getElementById("heist-progress").textContent = "0%";
+            document.getElementById("heist-condition").textContent = "100%";
+            document.getElementById("heist-heat").textContent = Math.round(gameState.crimeHeat || 0) + "%";
+            document.getElementById("heist-status").textContent = "Get the aircraft home before condition hits zero.";
+
+            addCrimeHeat(7);
+            openCrimeModal("✈️ PLANE HEIST", "Arcade flight: return the stolen aircraft to your airport.");
+            crimeLog(`Target acquired: ${aircraft.name}.`);
+            crimeLog("Use the flight controls. Boost moves you faster but is rougher on the aircraft.");
+            crimeLog("Reach 100% return progress with enough condition to keep the plane.");
+
+            crime.timer = setInterval(heistWorldTick, 650);
+            updateCrimeUI();
+        }
+
+        function heistControl(action) {
+            if (!crime.active || crime.type !== "plane") return;
+
+            let progressGain = 5;
+            let conditionLoss = 1.5;
+
+            if (action === "up") crime.y = Math.max(12, crime.y - 9);
+            if (action === "down") crime.y = Math.min(88, crime.y + 9);
+            if (action === "left") crime.x = Math.max(4, crime.x - 4);
+            if (action === "right") crime.x = Math.min(96, crime.x + 7);
+            if (action === "steady") {
+                progressGain = 4;
+                conditionLoss = 0.6;
+            }
+            if (action === "boost") {
+                progressGain = 10;
+                conditionLoss = 4;
+                crime.x = Math.min(96, crime.x + 10);
+            }
+
+            crime.progress = Math.min(100, crime.progress + progressGain);
+            crime.condition = Math.max(0, crime.condition - conditionLoss);
+            crime.lastAction = action;
+
+            const plane = document.getElementById("flight-plane");
+            plane.style.left = crime.x + "%";
+            plane.style.top = crime.y + "%";
+
+            updateHeistHud();
+
+            if (crime.condition <= 0) {
+                finishPlaneHeist(false, "The stolen aircraft was too damaged to complete the return.");
+                return;
+            }
+
+            if (crime.progress >= 100) {
+                const reward = Math.round(crime.aircraft.cost * (0.12 + Math.random() * 0.12));
+                const stolenPlane = {
+                    ...crime.aircraft,
+                    id: "stolen_" + Date.now(),
+                    uniqueId: planeIdCounter++,
+                    assignedRouteId: null,
+                    totalRevenue: 0,
+                    flights: 0,
+                    stolen: true
+                };
+                gameState.fleet.push(stolenPlane);
+                gameState.planesStolen = (gameState.planesStolen || 0) + 1;
+                gameState.crimeWins = (gameState.crimeWins || 0) + 1;
+                gameState.cash += reward;
+                gameState.crimeProfit = (gameState.crimeProfit || 0) + reward;
+                gameState.lifetimeRevenue = (gameState.lifetimeRevenue || 0) + reward;
+                addCrimeHeat(16);
+
+                crimeLog(`🏁 Airport reached! ${crime.aircraft.name} is now in your fleet.`);
+                crimeLog(`Bonus haul: ${formatMoney(reward)}.`);
+                logMessage(`✈️ Plane heist succeeded: stole a ${crime.aircraft.name} and brought it back to your airport.`);
+                showNotification(`Plane stolen successfully! ${crime.aircraft.name} added to fleet.`, "success");
+
+                if (crime.timer) clearInterval(crime.timer);
+                crime.timer = null;
+                crime.active = false;
+                updateUI();
+                setTimeout(closeCrimeModal, 1800);
+            }
+        }
+
+        function heistWorldTick() {
+            if (!crime.active || crime.type !== "plane") return;
+
+            // Obstacles move through the lane as a purely arcade challenge.
+            const obstacles = [
+                document.getElementById("flight-obstacle-1"),
+                document.getElementById("flight-obstacle-2")
+            ];
+            const planeX = crime.x;
+            const planeY = crime.y;
+
+            obstacles.forEach((ob, index) => {
+                const left = ((Date.now() / (900 + index * 350)) * 18 + 25 + index * 24) % 70;
+                const top = index === 0
+                    ? 24 + Math.sin(Date.now() / 700) * 20
+                    : 62 + Math.cos(Date.now() / 850) * 16;
+                ob.style.left = left + "%";
+                ob.style.top = top + "%";
+
+                const distance = Math.hypot(planeX - left, planeY - top);
+                if (distance < 8) {
+                    crime.obstacleHits++;
+                    crime.condition = Math.max(0, crime.condition - 7);
+                    crime.x = Math.max(5, crime.x - 3);
+                    crimeLog("💥 Turbulence/hazard hit! Condition -" + 7 + "%.");
+                }
+            });
+
+            crime.condition = Math.max(0, crime.condition - 0.5);
+            updateHeistHud();
+
+            if (crime.condition <= 0) {
+                finishPlaneHeist(false, "The aircraft could not safely make it back.");
+            }
+        }
+
+        function updateHeistHud() {
+            const set = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value;
+            };
+            set("heist-progress", Math.round(crime.progress) + "%");
+            set("heist-condition", Math.round(crime.condition) + "%");
+            set("heist-heat", Math.round(gameState.crimeHeat || 0) + "%");
+
+            const status = document.getElementById("heist-status");
+            if (status) {
+                status.textContent = crime.lastAction
+                    ? `Control: ${crime.lastAction}. Keep the aircraft stable and push toward the airport.`
+                    : "Choose a flight control to begin the run.";
+            }
+        }
+
+        function finishPlaneHeist(success, message) {
+            if (!crime.active) return;
+            addCrimeHeat(success ? 10 : 6);
+            finishCrime(false, 0, message);
+            crimeLog("❌ Heist failed. The aircraft is gone.");
+            setTimeout(closeCrimeModal, 1500);
+        }
+
+        function startCargoCrime() {
+            if (crime.active) return;
+            crime = { active: true, type: "cargo", timer: null };
+            openCrimeModal("📦 CARGO SWIPE", "Fictional timing challenge — hit the window to grab the shipment.");
+            document.getElementById("crime-heist-ui").style.display = "none";
+            document.getElementById("crime-choice-ui").style.display = "block";
+            document.getElementById("crime-choice-intro").textContent =
+                "A marker is moving across the security meter. Pick a moment: timing matters.";
+            renderCargoChoices();
+            addCrimeHeat(5);
+        }
+
+        function renderCargoChoices() {
+            const grid = document.getElementById("crime-choice-grid");
+            const result = document.getElementById("crime-result");
+            result.innerHTML = "<div>🎯 Choose a timing window:</div>";
+            grid.innerHTML = "";
+
+            [
+                ["⚡ Rush", "Fast attempt. Bigger payout, lower success chance.", 1.35, 0.38, 7],
+                ["🎯 Timed", "Balanced attempt with a solid success chance.", 1.0, 0.58, 5],
+                ["🧊 Patient", "Safer attempt, smaller payout.", 0.65, 0.76, 3]
+            ].forEach((item, index) => {
+                const button = document.createElement("button");
+                button.className = "crime-choice";
+                button.innerHTML = `<strong>${item[0]}</strong><span>${item[1]}</span>`;
+                button.onclick = () => {
+                    const success = Math.random() < item[3];
+                    addCrimeHeat(item[4]);
+                    if (success) {
+                        const reward = Math.round((250000 + Math.random() * 900000) * item[2]);
+                        finishCrime(true, reward, `Cargo swipe succeeded using the ${item[0].toLowerCase()} approach.`);
+                        result.innerHTML += `<div>✅ Success! ${formatMoney(reward)} secured.</div>`;
+                    } else {
+                        finishCrime(false, 0, "Cargo swipe failed.");
+                        result.innerHTML += "<div>❌ Security caught the attempt.</div>";
+                    }
+                    setTimeout(closeCrimeModal, 1500);
+                };
+                grid.appendChild(button);
+            });
+        }
+
+        function startDataCrime() {
+            if (crime.active) return;
+            crime = { active: true, type: "data", timer: null };
+            openCrimeModal("💻 BLACK-MARKET DATA JOB", "Choose a fictional high-risk job.");
+            document.getElementById("crime-heist-ui").style.display = "none";
+            document.getElementById("crime-choice-ui").style.display = "block";
+            document.getElementById("crime-choice-intro").textContent =
+                "Pick a job. The game resolves the fictional outcome randomly.";
+            renderDataChoices();
+            addCrimeHeat(6);
+        }
+
+        function renderDataChoices() {
+            const grid = document.getElementById("crime-choice-grid");
+            const result = document.getElementById("crime-result");
+            result.innerHTML = "";
+            grid.innerHTML = "";
+
+            [
+                ["📡 Small Leak", "Lower reward and lower heat.", 400000, .72, 5],
+                ["🗄️ Big Archive", "Higher reward and higher heat.", 1100000, .53, 11],
+                ["🧨 Risky Jackpot", "Huge payout if it works.", 2000000, .35, 18]
+            ].forEach(item => {
+                const button = document.createElement("button");
+                button.className = "crime-choice";
+                button.innerHTML = `<strong>${item[0]}</strong><span>${item[1]}</span>`;
+                button.onclick = () => {
+                    addCrimeHeat(item[4]);
+                    if (Math.random() < item[3]) {
+                        const reward = Math.round(item[2] * (0.75 + Math.random() * .5));
+                        finishCrime(true, reward, `${item[0]} completed.`);
+                        result.innerHTML = `<div>✅ Job complete: ${formatMoney(reward)}.</div>`;
+                    } else {
+                        finishCrime(false, 0, `${item[0]} went wrong.`);
+                        result.innerHTML = "<div>❌ The job collapsed before payout.</div>";
+                    }
+                    setTimeout(closeCrimeModal, 1500);
+                };
+                grid.appendChild(button);
+            });
+        }
+
+        function startShadyDeal() {
+            if (crime.active) return;
+            crime = { active: true, type: "deal", timer: null };
+            openCrimeModal("💼 SHADY DEAL BOARD", "Choose one mystery offer.");
+            document.getElementById("crime-heist-ui").style.display = "none";
+            document.getElementById("crime-choice-ui").style.display = "block";
+            document.getElementById("crime-choice-intro").textContent =
+                "Three fictional offers are on the table. One is excellent, one is average, one is a trap.";
+            renderShadyDeals();
+            addCrimeHeat(4);
+        }
+
+        function renderShadyDeals() {
+            const grid = document.getElementById("crime-choice-grid");
+            const result = document.getElementById("crime-result");
+            result.innerHTML = "";
+            grid.innerHTML = "";
+
+            const offers = [
+                { title: "🟢 Quiet Contract", reward: 900000, chance: .72, heat: 5 },
+                { title: "🟡 Off-the-Books Charter", reward: 1500000, chance: .54, heat: 9 },
+                { title: "🔴 Mystery Briefcase", reward: 2500000, chance: .32, heat: 16 }
+            ].sort(() => Math.random() - .5);
+
+            offers.forEach(offer => {
+                const button = document.createElement("button");
+                button.className = "crime-choice";
+                button.innerHTML = `<strong>${offer.title}</strong><span>Potential payout: ${formatMoney(offer.reward)}</span>`;
+                button.onclick = () => {
+                    addCrimeHeat(offer.heat);
+                    if (Math.random() < offer.chance) {
+                        const reward = Math.round(offer.reward * (.8 + Math.random() * .35));
+                        finishCrime(true, reward, `${offer.title} paid out.`);
+                        result.innerHTML = `<div>💰 Deal paid: ${formatMoney(reward)}.</div>`;
+                    } else {
+                        finishCrime(false, 0, `${offer.title} was a trap.`);
+                        result.innerHTML = "<div>🚨 Trap! The deal turned against you.</div>";
+                    }
+                    setTimeout(closeCrimeModal, 1500);
+                };
+                grid.appendChild(button);
+            });
+        }
+
+
+        /* =========================================================
+           INTERACTIVE COURTROOM ENGINE
+        ========================================================= */
+
+        let court = {
+            active: false,
+            round: 1,
+            maxRounds: 5,
+            defense: 50,
+            caseStrength: 50,
+            judgeFavor: 50,
+            caseInfo: null
+        };
+
+        const courtCases = [
+            {
+                title: "Passenger Injury Claim",
+                plaintiff: "A passenger claims your airline's staff acted negligently during a flight.",
+                judge: "The court wants facts, accountability and evidence.",
+                evidence: ["Crew report", "Safety checklist", "Passenger statement"]
+            },
+            {
+                title: "Flight Delay Compensation",
+                plaintiff: "Passengers claim your airline caused financial losses after a major delay.",
+                judge: "The court is examining whether the delay was reasonable and properly handled.",
+                evidence: ["Flight log", "Weather report", "Compensation records"]
+            },
+            {
+                title: "Airport Contract Dispute",
+                plaintiff: "An airport partner claims your airline broke a commercial agreement.",
+                judge: "The contract and both sides' conduct will be considered.",
+                evidence: ["Signed contract", "Invoice history", "Email records"]
+            },
+            {
+                title: "Baggage Damage Lawsuit",
+                plaintiff: "A customer claims your airline damaged valuable baggage and refused fair compensation.",
+                judge: "The court expects a clear explanation of what happened.",
+                evidence: ["Baggage scan", "Damage report", "Customer-service record"]
+            }
+        ];
+
+        const courtRounds = [
+            {
+                prompt: "Opening statement — what do you tell the court?",
+                choices: [
+                    ["Be honest and accept responsibility", "Tell the court what happened and promise to fix the problem.", 14, 10],
+                    ["Give a calm factual statement", "Stick to the timeline, records and facts.", 11, 7],
+                    ["Aggressively deny everything", "Attack the claim and insist your airline did nothing wrong.", 5, -6]
+                ]
+            },
+            {
+                prompt: "The plaintiff questions you. How do you respond?",
+                choices: [
+                    ["Answer directly", "Give a clear answer even if part of it hurts your case.", 13, 8],
+                    ["Challenge the evidence", "Ask the court to compare the claim with your records.", 10, 6],
+                    ["Avoid the question", "Give a vague answer and redirect attention.", -8, -10]
+                ]
+            },
+            {
+                prompt: "You are called to testify. What do you do?",
+                choices: [
+                    ["Testify personally", "Take the stand and explain how your airline handled the incident.", 15, 9],
+                    ["Admit one mistake, defend the rest", "Acknowledge a small failure while explaining why the main claim is unfair.", 18, 12],
+                    ["Let your lawyer speak", "Avoid the stand and rely on your legal team.", 8, 4]
+                ]
+            },
+            {
+                prompt: "Cross-examination gets intense. Your response?",
+                choices: [
+                    ["Stay calm under pressure", "Answer carefully and never lose your temper.", 12, 10],
+                    ["Point out contradictions", "Show the court where the plaintiff's story does not match the evidence.", 15, 4],
+                    ["Ask for a recess", "Give your lawyer time to review the evidence.", 9, 8]
+                ]
+            },
+            {
+                prompt: "Closing argument — make your final case.",
+                choices: [
+                    ["Strong final defense", "Summarize the evidence and ask for dismissal.", 16, 10],
+                    ["Offer a reasonable settlement", "Show the court you want a fair resolution without admitting wrongdoing.", 10, 14],
+                    ["Take a risky final stand", "Argue passionately that the lawsuit is an attempt to exploit your airline.", 20, -8]
+                ]
+            }
+        ];
+
+        function courtLog(speaker, message) {
+            const box = document.getElementById("court-dialogue");
+            if (!box) return;
+            const line = document.createElement("div");
+            line.className = "court-line";
+            line.innerHTML = `<b>${escapeHtml(speaker)}:</b> ${escapeHtml(message)}`;
+            box.appendChild(line);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function startCourtCase() {
+            if (!gameState.activeLawsuit) return;
+
+            const info = courtCases[Math.floor(Math.random() * courtCases.length)];
+            const lawyers = gameState.lawyers || 0;
+            gameState.courtTrials = (gameState.courtTrials || 0) + 1;
+
+            court = {
+                active: true,
+                round: 1,
+                maxRounds: 5,
+                defense: Math.min(95, 40 + lawyers * 7 + (gameState.reputation || 50) * 0.18),
+                caseStrength: Math.round(45 + Math.random() * 40),
+                judgeFavor: Math.min(85, 42 + (gameState.reputation || 50) * 0.12),
+                caseInfo: info
+            };
+
+            document.getElementById("court-case-title").textContent = info.title;
+            document.getElementById("court-plaintiff").textContent = info.plaintiff;
+            document.getElementById("court-judge").textContent = info.judge;
+            document.getElementById("court-lawyer").textContent = lawyers > 0
+                ? `You have ${lawyers} lawyer(s). They improve your defense and can advise you.`
+                : "You have no lawyers. You are representing yourself.";
+            document.getElementById("court-dialogue").innerHTML = "";
+            document.getElementById("court-evidence").innerHTML = info.evidence
+                .map(e => `<span class="evidence-chip">📄 ${escapeHtml(e)}</span>`).join("");
+
+            document.getElementById("court-modal").classList.remove("hidden");
+
+            courtLog("Judge", "Court is now in session.");
+            courtLog("Plaintiff", info.plaintiff);
+            courtLog("Lawyer", lawyers > 0
+                ? "Captain, use the evidence and stay consistent with your testimony."
+                : "Captain, be careful. Without counsel, every answer matters.");
+
+            renderCourtRound();
+            updateCourtUI();
+        }
+
+        function renderCourtRound() {
+            if (!court.active) return;
+
+            const round = courtRounds[court.round - 1];
+            document.getElementById("court-prompt").textContent = round.prompt;
+
+            const choices = document.getElementById("court-choices");
+            choices.innerHTML = "";
+
+            round.choices.forEach((choice, index) => {
+                const button = document.createElement("button");
+                button.className = "court-choice";
+                button.innerHTML = `<strong>${index + 1}. ${escapeHtml(choice[0])}</strong><span>${escapeHtml(choice[1])}</span>`;
+                button.onclick = () => chooseCourtAction(choice);
+                choices.appendChild(button);
+            });
+
+            document.getElementById("court-advice").textContent =
+                (gameState.lawyers || 0) > 0
+                    ? `Your lawyers give you a ${Math.min(35, (gameState.lawyers || 0) * 7)}-point defense advantage.`
+                    : "Tip: Hiring lawyers before future lawsuits will improve your defense.";
+        }
+
+        function chooseCourtAction(choice) {
+            if (!court.active) return;
+
+            const lawyers = gameState.lawyers || 0;
+            const lawyerEffect = Math.min(8, lawyers * 2);
+            const randomSwing = Math.floor(Math.random() * 9) - 4;
+
+            court.defense = Math.max(0, Math.min(100, court.defense + choice[2] + lawyerEffect + randomSwing));
+            court.judgeFavor = Math.max(0, Math.min(100, court.judgeFavor + choice[3]));
+
+            courtLog("You", choice[1]);
+
+            if (choice[2] >= 15) {
+                courtLog("Judge", "That was a strong response. The court will take it into consideration.");
+            } else if (choice[2] >= 8) {
+                courtLog("Judge", "The answer is noted. Please continue.");
+            } else {
+                courtLog("Judge", "The court is not fully convinced by that response.");
+            }
+
+            if (court.round === 3) {
+                courtLog("Lawyer", lawyers > 0
+                    ? "Your testimony is now part of the official record."
+                    : "Your testimony is on the record. Choose your next statement carefully.");
+            }
+
+            if (court.round >= court.maxRounds) {
+                finishCourtCase();
+                return;
+            }
+
+            court.round++;
+            updateCourtUI();
+            setTimeout(() => {
+                if (court.active) renderCourtRound();
+            }, 250);
+        }
+
+        function finishCourtCase() {
+            if (!court.active) return;
+
+            const lawyerBonus = Math.min(20, (gameState.lawyers || 0) * 4);
+            const verdictScore =
+                court.defense * 0.55 +
+                court.judgeFavor * 0.25 +
+                lawyerBonus +
+                Math.random() * 18 -
+                court.caseStrength * 0.35;
+
+            const settlement = gameState.lawsuitSettlement || getSettlementCost();
+
+            if (verdictScore >= 62) {
+                court.active = false;
+                gameState.activeLawsuit = false;
+                gameState.lawsuitSettlement = 0;
+                gameState.courtCasesWon = (gameState.courtCasesWon || 0) + 1;
+                gameState.reputation = Math.min(100, (gameState.reputation || 50) + 3);
+
+                courtLog("Judge", "VERDICT: The case is dismissed. The airline wins!");
+                courtLog("Court Clerk", "No settlement is owed.");
+                showNotification("⚖️ You won the lawsuit!", "success");
+                logMessage("⚖️ Court victory! Lawsuit dismissed with no settlement payment.");
+            } else {
+                court.active = false;
+                gameState.courtCasesLost = (gameState.courtCasesLost || 0) + 1;
+                gameState.reputation = Math.max(0, (gameState.reputation || 50) - 3);
+
+                courtLog("Judge", `VERDICT: Plaintiff wins. Settlement ordered: ${formatMoney(settlement)}.`);
+                courtLog("Court Clerk", "The settlement must now be paid through the Legal Department.");
+                showNotification("⚖️ You lost the lawsuit.", "error");
+                logMessage(`⚖️ Lost in court. Settlement required: ${formatMoney(settlement)}.`);
+            }
+
+            updateCourtUI();
+            updateUI();
+
+            setTimeout(() => {
+                document.getElementById("court-modal").classList.add("hidden");
+            }, 2200);
+        }
+
+        function courtSettleCase() {
+            if (!gameState.activeLawsuit) {
+                showNotification("There is no active lawsuit.", "warning");
+                return;
+            }
+
+            const cost = gameState.lawsuitSettlement || getSettlementCost();
+
+            if (gameState.cash < cost) {
+                showNotification(`You need ${formatMoney(cost - gameState.cash)} more to settle.`, "error");
+                return;
+            }
+
+            gameState.cash -= cost;
+            gameState.lifetimeExpenses = (gameState.lifetimeExpenses || 0) + cost;
+            gameState.activeLawsuit = false;
+            gameState.lawsuitSettlement = 0;
+            court.active = false;
+
+            document.getElementById("court-modal").classList.add("hidden");
+
+            logMessage(`Lawsuit settled before verdict for ${formatMoney(cost)}.`);
+            showNotification("Case settled. You avoided a court verdict.", "success");
+            updateUI();
+        }
+
+        function openCourtFromLegal() {
+            if (!gameState.activeLawsuit) {
+                showNotification("Your airline does not have an active lawsuit.", "warning");
+                return;
+            }
+            startCourtCase();
+        }
+
+        function leaveCourt() {
+            if (!court.active) {
+                document.getElementById("court-modal").classList.add("hidden");
+                return;
+            }
+
+            if (!confirm("Leave court? Abandoning your defense means the plaintiff wins.")) return;
+
+            court.active = false;
+            gameState.courtCasesLost = (gameState.courtCasesLost || 0) + 1;
+            gameState.reputation = Math.max(0, (gameState.reputation || 50) - 5);
+
+            document.getElementById("court-modal").classList.add("hidden");
+            logMessage("Abandoned the court case. Plaintiff wins by default.");
+            showNotification("You abandoned the case.", "error");
+            updateUI();
+        }
+
+        function updateCourtUI() {
+            const set = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value;
+            };
+
+            set("court-case-strength", Math.round(court.caseStrength || 0) + "%");
+            set("court-defense", Math.round(court.defense || 0) + "%");
+            set("court-judge-favor", Math.round(court.judgeFavor || 0) + "%");
+            set("court-reputation", Math.round(gameState.reputation || 50) + "/100");
+            set("court-round", `${Math.min(court.round || 1, 5)} / 5`);
+
+            const settle = document.getElementById("court-settle-button");
+            if (settle) {
+                settle.textContent = gameState.activeLawsuit
+                    ? `💰 Settle for ${formatMoney(gameState.lawsuitSettlement || getSettlementCost())}`
+                    : "Case Closed";
+            }
+        }
+
+
+        /* =========================================================
+           ESTIMATED PROFIT
+        ========================================================= */
+
+        function calculateEstimatedWeeklyProfit() {
+
+            let revenue = 0;
+            let maintenance = 0;
+
+            gameState.fleet.forEach(plane => {
+                maintenance += plane.weeklyMaintenance;
+            });
+
+            gameState.routes.forEach(route => {
+
+                const plane = getAircraftById(route.aircraftId);
+
+                if (plane) {
+                    revenue += calculateWeeklyRevenue(
+                        route,
+                        plane
+                    );
+                }
+            });
+
+            return revenue - maintenance;
+        }
+
+        /* =========================================================
+           UPDATE UI
+        ========================================================= */
+
+        function updateUI() {
+
+            document.getElementById("stat-cash").textContent =
+                formatMoney(gameState.cash);
+
+            document.getElementById("stat-fleet").textContent =
+                gameState.fleet.length;
+
+            document.getElementById("stat-routes").textContent =
+                gameState.routes.length;
+
+            const profit =
+                calculateEstimatedWeeklyProfit();
+
+            const profitElement =
+                document.getElementById("stat-profit");
+
+            profitElement.textContent =
+                formatMoney(profit);
+
+            const perSecondElement = document.getElementById("stat-per-second");
+            if (perSecondElement) {
+                perSecondElement.textContent = formatMoney(profit / SECONDS_PER_WEEK) + "/sec";
+                perSecondElement.style.color =
+                    profit >= 0 ? "var(--success)" : "var(--danger)";
+            }
+
+            profitElement.style.color =
+                profit >= 0
+                    ? "var(--success)"
+                    : "var(--danger)";
+
+            document.getElementById("game-time").textContent =
+                `Week: ${gameState.week}`;
+
+            updateAirlineBranding();
+            updateMenuStats();
+            updateLegalUI();
+            updateCrimeUI();
+            updateCourtUI();
+
+            const reputationEl = document.getElementById("management-reputation");
+            const marketingEl = document.getElementById("management-marketing");
+            const staffEl = document.getElementById("management-staff");
+            const loanEl = document.getElementById("management-loan");
+
+            if (reputationEl) reputationEl.textContent = Math.round(gameState.reputation || 50);
+            if (marketingEl) marketingEl.textContent =
+                `${Math.round((gameState.marketingBonus || 0) * 100)}% (${gameState.marketingWeeks || 0} wk)`;
+            if (staffEl) staffEl.textContent =
+                `${Math.round((gameState.staffBonus || 0) * 100)}% (${gameState.staffWeeks || 0} wk)`;
+            if (loanEl) loanEl.textContent = formatMoney(gameState.loan || 0);
+
+            renderMarketplace();
+            renderRoutePlanner();
+            renderFleet();
+            renderActiveRoutes();
+        }
+
+        /* =========================================================
+           SAVE GAME
+        ========================================================= */
+
+        function saveGame(silent = false) {
+
+            try {
+
+                const saveData = {
+                    gameState,
+                    planeIdCounter,
+                    routeIdCounter
+                };
+
+                localStorage.setItem(
+                    "skyhighAirlineSave",
+                    JSON.stringify(saveData)
+                );
+
+                if (!silent) {
+                    showNotification("Game saved.", "success");
+                    logMessage("Game saved successfully.");
+                }
+
+            } catch (error) {
+
+                console.error(error);
+
+                if (!silent) {
+                    showNotification(
+                        "Could not save the game.",
+                        "error"
+                    );
+                }
+            }
+        }
+
+        /* =========================================================
+           LOAD GAME
+        ========================================================= */
+
+        function loadGame() {
+
+            try {
+
+                const raw =
+                    localStorage.getItem("skyhighAirlineSave");
+
+                if (!raw) {
+                    showNotification(
+                        "No saved game found.",
+                        "warning"
+                    );
+                    return;
+                }
+
+                const saveData = JSON.parse(raw);
+
+                if (!saveData.gameState) {
+                    throw new Error("Invalid save data.");
+                }
+
+                gameState = saveData.gameState;
+
+                planeIdCounter =
+                    saveData.planeIdCounter || 1;
+
+                routeIdCounter =
+                    saveData.routeIdCounter || 1;
+
+                /*
+                    Repair old/broken save files.
+                */
+
+                if (!Array.isArray(gameState.fleet)) {
+                    gameState.fleet = [];
+                }
+
+                if (!Array.isArray(gameState.routes)) {
+                    gameState.routes = [];
+                }
+
+                // Add defaults for saves created before management features existed.
+                if (gameState.reputation === undefined) gameState.reputation = 50;
+                if (gameState.marketingWeeks === undefined) gameState.marketingWeeks = 0;
+                if (gameState.marketingBonus === undefined) gameState.marketingBonus = 0;
+                if (gameState.staffWeeks === undefined) gameState.staffWeeks = 0;
+                if (gameState.staffBonus === undefined) gameState.staffBonus = 0;
+                if (gameState.loan === undefined) gameState.loan = 0;
+                if (gameState.loanDueWeek === undefined) gameState.loanDueWeek = 0;
+                if (gameState.tickSeconds === undefined) gameState.tickSeconds = 0;
+                if (gameState.airlineName === undefined) gameState.airlineName = "SkyHigh Airlines";
+                if (gameState.theme === undefined) gameState.theme = "classic";
+                if (gameState.lifetimeRevenue === undefined) gameState.lifetimeRevenue = 0;
+                if (gameState.lifetimeExpenses === undefined) gameState.lifetimeExpenses = 0;
+                if (gameState.casinoWins === undefined) gameState.casinoWins = 0;
+                if (gameState.casinoLosses === undefined) gameState.casinoLosses = 0;
+                if (gameState.casinoProfit === undefined) gameState.casinoProfit = 0;
+                if (gameState.totalFlights === undefined) gameState.totalFlights = 0;
+                if (gameState.blackjackWins === undefined) gameState.blackjackWins = 0;
+                if (gameState.blackjackLosses === undefined) gameState.blackjackLosses = 0;
+                if (gameState.pokerWins === undefined) gameState.pokerWins = 0;
+                if (gameState.pokerLosses === undefined) gameState.pokerLosses = 0;
+                if (gameState.courtCasesWon === undefined) gameState.courtCasesWon = 0;
+                if (gameState.courtCasesLost === undefined) gameState.courtCasesLost = 0;
+                if (gameState.courtTrials === undefined) gameState.courtTrials = 0;
+                if (gameState.lawyers === undefined) gameState.lawyers = 0;
+                if (gameState.gamblingRisk === undefined) gameState.gamblingRisk = 0;
+                if (gameState.lawsuitRisk === undefined) gameState.lawsuitRisk = 20;
+                if (gameState.legalCheckSeconds === undefined) gameState.legalCheckSeconds = 0;
+                if (gameState.activeLawsuit === undefined) gameState.activeLawsuit = false;
+                if (gameState.lawsuitSettlement === undefined) gameState.lawsuitSettlement = 0;
+                if (gameState.totalLawsuits === undefined) gameState.totalLawsuits = 0;
+
+                if (gameState.crimeWins === undefined) gameState.crimeWins = 0;
+                if (gameState.crimeLosses === undefined) gameState.crimeLosses = 0;
+                if (gameState.planesStolen === undefined) gameState.planesStolen = 0;
+                if (gameState.crimeProfit === undefined) gameState.crimeProfit = 0;
+                if (gameState.crimeHeat === undefined) gameState.crimeHeat = 0;
+
+                applyTheme(gameState.theme);
+                updateAirlineBranding();
+
+                gameState.fleet.forEach(plane => {
+
+                    if (plane.assignedRouteId === undefined) {
+                        plane.assignedRouteId = null;
+                    }
+
+                    if (plane.totalRevenue === undefined) {
+                        plane.totalRevenue = 0;
+                    }
+
+                    if (plane.flights === undefined) {
+                        plane.flights = 0;
+                    }
+                });
+
+                updateUI();
+
+                logMessage("Saved game loaded.");
+
+                showNotification(
+                    "Game loaded successfully.",
+                    "success"
+                );
+
+            } catch (error) {
+
+                console.error(error);
+
+                showNotification(
+                    "Save file is corrupted.",
+                    "error"
+                );
+            }
+        }
+
+        /* =========================================================
+           RESET GAME
+        ========================================================= */
+
+        function resetGame() {
+
+            const confirmed =
+                confirm(
+                    "Are you sure you want to reset your airline? " +
+                    "All progress will be deleted."
+                );
+
+            if (!confirmed) return;
+
+            gameState = {
+                cash: STARTING_CASH,
+                week: 1,
+                fleet: [],
+                routes: [],
+                reputation: 50,
+                marketingWeeks: 0,
+                marketingBonus: 0,
+                staffWeeks: 0,
+                staffBonus: 0,
+                loan: 0,
+                loanDueWeek: 0,
+                tickSeconds: 0,
+                airlineName: "SkyHigh Airlines",
+                theme: "classic",
+                lifetimeRevenue: 0,
+                lifetimeExpenses: 0,
+                casinoWins: 0,
+                casinoLosses: 0,
+                casinoProfit: 0,
+                totalFlights: 0,
+                blackjackWins: 0,
+                blackjackLosses: 0,
+                pokerWins: 0,
+                pokerLosses: 0,
+                lawyers: 0,
+                lawsuitRisk: 20,
+                legalCheckSeconds: 0,
+                activeLawsuit: false,
+                lawsuitSettlement: 0,
+                totalLawsuits: 0,
+                crimeWins: 0,
+                crimeLosses: 0,
+                planesStolen: 0,
+                crimeProfit: 0,
+                crimeHeat: 0
+            };
+
+            planeIdCounter = 1;
+            routeIdCounter = 1;
+
+            localStorage.removeItem(
+                "skyhighAirlineSave"
+            );
+
+            document.getElementById("log-box").innerHTML = `
+        <div class="log-entry">
+            [System] Airline reset. Welcome back, Captain.
+        </div>
+    `;
+
+            updateUI();
+            applyTheme("classic");
+            updateAirlineBranding();
+            saveGame(true);
+
+            showNotification(
+                "Airline reset.",
+                "success"
+            );
+
+            if (gameTimer) clearInterval(gameTimer);
+            gameTimer = null;
+            showStartMenu();
+        }
+
+        /* =========================================================
+           START
+        ========================================================= */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            initGame
+        );
+
+    </script>
+
+</body>
+
+</html>
