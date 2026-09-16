@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyHigh: Airline Manager</title>
+    <title>Airline Empire Remastered</title>
 
     <style>
         :root {
@@ -1163,6 +1163,77 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* TOP GAME TABS */
+        .top-tabs {
+            position: sticky;
+            top: 0;
+            z-index: 5000;
+            display: flex;
+            gap: 6px;
+            padding: 8px;
+            margin: 0 0 14px;
+            background: rgba(15, 23, 42, .97);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            overflow-x: auto
+        }
+
+        .top-tab {
+            flex: 0 0 auto;
+            border: 1px solid #475569;
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: 800;
+            margin: 0;
+            white-space: nowrap
+        }
+
+        .top-tab:hover {
+            background: #334155
+        }
+
+        .top-tab.active {
+            background: #2563eb;
+            border-color: #60a5fa;
+            color: #fff
+        }
+
+        .game-tab-panel {
+            display: none
+        }
+
+        .game-tab-panel.active {
+            display: block
+        }
+
+        .tab-section-label {
+            color: #94a3b8;
+            font-size: .8rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin: 0 0 8px 2px
+        }
+
+        .switchable-panel.tab-hidden {
+            display: none !important
+        }
+
+        .main-layout.tab-layout {
+            display: block !important
+        }
+
+        .top-tabs {
+            width: 100%;
+            box-sizing: border-box
+        }
+
+        .main-layout.tab-layout>.switchable-panel {
+            width: 100%
+        }
     </style>
 </head>
 
@@ -1174,7 +1245,7 @@
         <div class="menu-card">
             <div class="menu-brand">
                 <div class="logo">✈️</div>
-                <h1>SkyHigh: Airline Manager</h1>
+                <h1>Airline Empire Remastered</h1>
                 <p>Build your airline empire, dominate the skies, and take a few questionable bets at the casino.</p>
             </div>
 
@@ -1183,7 +1254,7 @@
                     <h2>🏢 Create Your Airline</h2>
                     <label for="airline-name-input">Airline Name</label>
                     <input id="airline-name-input" class="airline-name-input" maxlength="30"
-                        placeholder="e.g. Atlantic Airways" value="SkyHigh Airlines">
+                        placeholder="e.g. Atlantic Airways" value="Airline Empire">
 
                     <h2>🎨 Choose a Theme</h2>
                     <div class="theme-grid">
@@ -1242,7 +1313,7 @@
 
     <header>
         <div>
-            <h1 id="airline-title">✈️ SkyHigh Airlines</h1>
+            <h1 id="airline-title">✈️ Airline Empire</h1>
             <p>Global Fleet & Route Management Simulation</p>
         </div>
 
@@ -1287,12 +1358,28 @@
         </div>
     </div>
 
-    <div class="main-layout">
+    <div class="tab-section-label">Game Menu</div>
+    <nav class="top-tabs" id="game-tab-nav" aria-label="Game sections"><button type="button" class="top-tab"
+            data-tab-target="plane-market-panel" onclick="switchGameTab('plane-market-panel')">✈️ Plane
+            Market</button><button type="button" class="top-tab" data-tab-target="finance-panel"
+            onclick="switchGameTab('finance-panel')">💰 Finances</button><button type="button" class="top-tab"
+            data-tab-target="routes-panel" onclick="switchGameTab('routes-panel')">🌎 Routes</button><button
+            type="button" class="top-tab" data-tab-target="fleet-panel" onclick="switchGameTab('fleet-panel')">✈️
+            Fleet</button><button type="button" class="top-tab" data-tab-target="active-routes-panel"
+            onclick="switchGameTab('active-routes-panel')">🗺️ Active Routes</button><button type="button"
+            class="top-tab" data-tab-target="operations-panel" onclick="switchGameTab('operations-panel')">📋
+            Operations</button><button type="button" class="top-tab" data-tab-target="crime-panel"
+            onclick="switchGameTab('crime-panel')">🚨 Crime</button><button type="button" class="top-tab"
+            data-tab-target="legal-panel" onclick="switchGameTab('legal-panel')">⚖️ Lawsuits</button><button
+            type="button" class="top-tab" data-tab-target="casino-panel" onclick="switchGameTab('casino-panel')">🎰
+            Casino</button></nav>
+
+    <div class="main-layout tab-layout">
 
         <!-- LEFT -->
         <div>
 
-            <div class="panel">
+            <div class="panel switchable-panel" id="plane-market-panel">
                 <h2>🛩️ Aircraft Marketplace</h2>
 
                 <p class="section-note">
@@ -1303,8 +1390,27 @@
             </div>
 
 
-            <div class="panel">
+            <div class="panel switchable-panel" id="finance-panel">
                 <h2>💼 Airline Management & Finance</h2>
+                <div class="finance-dashboard"
+                    style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:0 0 15px;">
+                    <div class="stat-card">
+                        <h3>Available Cash</h3>
+                        <p id="finance-cash">$0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Weekly Profit</h3>
+                        <p id="finance-weekly-profit">$0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Income / Second</h3>
+                        <p id="finance-per-second">$0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Loan Balance</h3>
+                        <p id="finance-loan">$0</p>
+                    </div>
+                </div>
                 <p class="section-note">
                     Manage your airline's reputation, marketing, staff and cash reserves.
                     You can also take a controlled financial risk by investing company cash in the market.
@@ -1352,9 +1458,7 @@
                     </div>
                 </div>
             </div>
-
-
-            <div class="panel crime-panel" id="crime-panel">
+            <div class="panel crime-panel switchable-panel" id="crime-panel">
                 <h2>🚨 CRIME NETWORK <span class="badge danger">High Risk</span></h2>
                 <p class="section-note">
                     Run fictional arcade-style crimes for fast money and illegal aircraft.
@@ -1385,6 +1489,39 @@
 
                 <div id="crime-warning" class="crime-warning">
                     ⚠️ The authorities are watching. Keep an eye on your heat.
+                </div>
+
+                <div class="item-card" style="margin-top:12px;">
+                    <h3>🕶️ Mob & Gang Network</h3>
+                    <p>Hire fictional criminal organizations to run game-only jobs for your airline. They can generate
+                        cash and occasionally acquire an aircraft for your fleet.</p>
+                    <div class="legal-grid">
+                        <div class="legal-stat"><span>Organizations</span><strong id="gang-count">0</strong></div>
+                        <div class="legal-stat"><span>Gang Income</span><strong id="gang-income">$0/wk</strong></div>
+                        <div class="legal-stat"><span>Gang Planes</span><strong id="gang-planes">0</strong></div>
+                        <div class="legal-stat"><span>Gang Loyalty</span><strong id="gang-loyalty">50%</strong></div>
+                    </div>
+                    <div class="grid-list" style="margin-top:10px;">
+                        <div class="item-card">
+                            <h4>🕶️ Hire a Crew</h4>
+                            <p>Hire a fictional crew for $1.5m. Each crew earns money over time.</p><button
+                                class="danger" onclick="hireGang()">Hire Crew — $1.5m</button>
+                        </div>
+                        <div class="item-card">
+                            <h4>💰 Send Gang on Job</h4>
+                            <p>Send a crew on a risky fictional job. Success earns cash; failure raises heat.</p><button
+                                class="danger" onclick="sendGangJob()">Send Crew</button>
+                        </div>
+                        <div class="item-card">
+                            <h4>✈️ Gang Plane Acquisition</h4>
+                            <p>Ask your crews to attempt a fictional aircraft acquisition. If successful, the plane is
+                                added directly to your fleet and can be assigned to routes.</p><button class="danger"
+                                onclick="gangStealPlane()">Acquire Aircraft</button>
+                        </div>
+                    </div>
+                    <div id="gang-log" class="log-box" style="margin-top:10px;max-height:140px;">
+                        <div>No gang activity yet.</div>
+                    </div>
                 </div>
 
                 <div class="grid-list" style="margin-top:12px;">
@@ -1420,7 +1557,7 @@
                 </div>
             </div>
 
-            <div class="panel" id="legal-panel">
+            <div class="panel switchable-panel" id="legal-panel">
                 <h2>⚖️ Legal Department <span class="badge warning">Lawsuit Risk</span></h2>
                 <p class="section-note">
                     Every two real-time minutes, there is a 20% chance your airline gets sued.
@@ -1468,8 +1605,8 @@
                 </div>
             </div>
 
-            <div class="panel" id="casino-panel">
-                <h2>🎰 SkyHigh Casino <span class="badge warning">Virtual airline cash</span></h2>
+            <div class="panel switchable-panel" id="casino-panel">
+                <h2>🎰 Airline Empire Casino <span class="badge warning">Virtual airline cash</span></h2>
                 <p class="section-note">Pick a game. Blackjack gives you decisions every hand, while Texas Hold'em lets
                     you check, call, raise or fold against the house.</p>
 
@@ -1573,7 +1710,7 @@
                 </div>
             </div>
 
-            <div class="panel">
+            <div class="panel switchable-panel" id="routes-panel">
                 <h2>🌎 Route Network Planner</h2>
 
                 <p class="section-note">
@@ -1589,7 +1726,7 @@
         <!-- RIGHT -->
         <div>
 
-            <div class="panel">
+            <div class="panel switchable-panel" id="fleet-panel">
                 <h2>✈️ Current Fleet Status</h2>
 
                 <div id="fleet-list" style="max-height:300px; overflow-y:auto;">
@@ -1597,7 +1734,7 @@
                 </div>
             </div>
 
-            <div class="panel">
+            <div class="panel switchable-panel" id="active-routes-panel">
                 <h2>🗺️ Active Routes</h2>
 
                 <div id="active-routes-list" style="max-height:300px; overflow-y:auto;">
@@ -1605,7 +1742,7 @@
                 </div>
             </div>
 
-            <div class="panel">
+            <div class="panel switchable-panel" id="operations-panel">
                 <h2>📋 Flight Operations Log</h2>
 
                 <div class="log-box" id="log-box">
@@ -1680,7 +1817,7 @@
         <div class="courtroom">
             <div class="court-header">
                 <div>
-                    <h2>⚖️ SkyHigh v. The Plaintiff</h2>
+                    <h2>⚖️ Airline Empire v. The Plaintiff</h2>
                     <p class="section-note" id="court-case-title">Civil lawsuit hearing</p>
                 </div>
                 <button class="danger" onclick="leaveCourt()">Leave Court</button>
@@ -1750,7 +1887,7 @@
             loan: 0,
             loanDueWeek: 0,
             tickSeconds: 0,
-            airlineName: "SkyHigh Airlines",
+            airlineName: "Airline Empire",
             theme: "classic",
             lifetimeRevenue: 0,
             lifetimeExpenses: 0,
@@ -1773,7 +1910,13 @@
             crimeLosses: 0,
             planesStolen: 0,
             crimeProfit: 0,
-            crimeHeat: 0
+            crimeHeat: 0,
+            crimeCaptures: 0,
+            captured: false,
+            gangs: [],
+            gangIncome: 0,
+            gangLoyalty: 50,
+            gangPlanes: 0
         };
 
         let planeIdCounter = 1;
@@ -1844,13 +1987,16 @@
                 demand: 90,
                 baseTicketPrice: 850
             },
-            {
-                id: "sydney",
-                city: "Sydney (SYD)",
-                distance: 9900,
-                demand: 95,
-                baseTicketPrice: 1200
-            }
+            { id: "sydney", city: "Sydney (SYD)", distance: 9900, demand: 95, baseTicketPrice: 1200 },
+            { id: "amsterdam", city: "Amsterdam (AMS)", distance: 3600, demand: 88, baseTicketPrice: 470 },
+            { id: "dubai", city: "Dubai (DXB)", distance: 6900, demand: 92, baseTicketPrice: 780 },
+            { id: "singapore", city: "Singapore (SIN)", distance: 9800, demand: 94, baseTicketPrice: 1050 },
+            { id: "toronto", city: "Toronto (YYZ)", distance: 700, demand: 72, baseTicketPrice: 210 },
+            { id: "mexicocity", city: "Mexico City (MEX)", distance: 3000, demand: 78, baseTicketPrice: 390 },
+            { id: "sao_paulo", city: "São Paulo (GRU)", distance: 7600, demand: 84, baseTicketPrice: 920 },
+            { id: "cape_town", city: "Cape Town (CPT)", distance: 12500, demand: 80, baseTicketPrice: 1150 },
+            { id: "hong_kong", city: "Hong Kong (HKG)", distance: 6300, demand: 91, baseTicketPrice: 900 },
+            { id: "new_york", city: "New York (JFK)", distance: 1200, demand: 96, baseTicketPrice: 300 }
         ];
 
         /* =========================================================
@@ -1967,14 +2113,14 @@
         }
 
         function updateAirlineBranding() {
-            const name = (gameState.airlineName || "SkyHigh Airlines").trim() || "SkyHigh Airlines";
+            const name = (gameState.airlineName || "Airline Empire").trim() || "Airline Empire";
             gameState.airlineName = name;
 
             const title = document.getElementById("airline-title");
             const nameInput = document.getElementById("airline-name-input");
 
             if (title) title.textContent = "✈️ " + name;
-            document.title = name + " — Airline Manager";
+            document.title = "Airline Empire Remastered — " + name;
             if (nameInput && document.activeElement !== nameInput) {
                 nameInput.value = name;
             }
@@ -1993,7 +2139,7 @@
             );
 
             document.getElementById("airline-name-input").value =
-                gameState.airlineName || "SkyHigh Airlines";
+                gameState.airlineName || "Airline Empire";
 
             applyTheme(gameState.theme || "classic");
             updateMenuStats();
@@ -2067,7 +2213,13 @@
                 crimeLosses: 0,
                 planesStolen: 0,
                 crimeProfit: 0,
-                crimeHeat: 0
+                crimeHeat: 0,
+                crimeCaptures: 0,
+                captured: false,
+                gangs: [],
+                gangIncome: 0,
+                gangLoyalty: 50,
+                gangPlanes: 0
             };
 
             planeIdCounter = 1;
@@ -2115,7 +2267,7 @@
             preview.innerHTML = `
                 <div class="career-stat">
                     <span>Airline</span>
-                    <strong>${escapeHtml(gameState.airlineName || "SkyHigh Airlines")}</strong>
+                    <strong>${escapeHtml(gameState.airlineName || "Airline Empire")}</strong>
                 </div>
                 <div class="career-stat">
                     <span>Cash</span>
@@ -2160,7 +2312,7 @@
             const weeklyProfit = calculateEstimatedWeeklyProfit();
 
             name.textContent =
-                `${gameState.airlineName || "SkyHigh Airlines"} • Week ${gameState.week}`;
+                `${gameState.airlineName || "Airline Empire"} • Week ${gameState.week}`;
 
             grid.innerHTML = `
                 <div class="career-stat"><span>Cash Balance</span><strong>${formatMoney(gameState.cash)}</strong></div>
@@ -2290,172 +2442,91 @@
            ROUTE PLANNER
         ========================================================= */
 
+        function getRoutePlanes(route) {
+            if (!route) return [];
+            if (!Array.isArray(route.aircraftIds)) {
+                route.aircraftIds = route.aircraftId ? [route.aircraftId] : [];
+            }
+            return route.aircraftIds.map(getAircraftById).filter(Boolean);
+        }
+
         function renderRoutePlanner() {
-
             const container = document.getElementById("route-market");
-
+            if (!container) return;
             container.innerHTML = "";
 
             destinationCatalog.forEach(destination => {
-
-                const alreadyExists = gameState.routes.some(
-                    route => route.destinationId === destination.id
+                const route = gameState.routes.find(r => r.destinationId === destination.id);
+                const availablePlanes = gameState.fleet.filter(plane =>
+                    (plane.assignedRouteId == null) && plane.range >= destination.distance
                 );
-
-                const availablePlanes = gameState.fleet.filter(
-                    plane =>
-                        plane.assignedRouteId === null &&
-                        plane.range >= destination.distance
-                );
-
                 const card = document.createElement("div");
                 card.className = "item-card";
-
-                let aircraftOptions = "";
-
-                if (availablePlanes.length > 0) {
-                    aircraftOptions = availablePlanes.map(plane => `
-                <option value="${plane.uniqueId}">
-                    ${plane.uniqueId} — ${plane.name}
-                </option>
-            `).join("");
-                }
-
+                const currentPlanes = route ? getRoutePlanes(route) : [];
+                const options = availablePlanes.map(plane => `<option value="${plane.uniqueId}">${plane.uniqueId} — ${plane.name}${plane.stolen ? " 🕵️ STOLEN" : ""}</option>`).join("");
                 card.innerHTML = `
-            <div>
-                <h4>Hub → ${destination.city}</h4>
-
-                <p>📏 Distance: ${formatNumber(destination.distance)} km</p>
-                <p>📈 Demand: ${destination.demand}%</p>
-                <p>🎟️ Ticket: ${formatMoney(destination.baseTicketPrice)}</p>
-            </div>
-
-            ${alreadyExists
-                        ? `<button disabled>Route Already Active</button>`
-                        : availablePlanes.length === 0
-                            ? `<button disabled>No Suitable Aircraft</button>`
-                            : `
-                        <select id="plane-select-${destination.id}">
-                            ${aircraftOptions}
-                        </select>
-
-                        <button
-                            class="success"
-                            onclick="createRoute('${destination.id}')">
-                            Establish Route
-                        </button>
-                    `
-                    }
-        `;
-
+                    <div><h4>Hub → ${destination.city}</h4>
+                    <p>📏 Distance: ${formatNumber(destination.distance)} km</p>
+                    <p>📈 Demand: ${destination.demand}%</p>
+                    <p>🎟️ Ticket: ${formatMoney(destination.baseTicketPrice)}</p>
+                    <p>✈️ Aircraft on route: <strong>${currentPlanes.length}</strong></p></div>
+                    ${availablePlanes.length ? `
+                        <select id="plane-select-${destination.id}">${options}</select>
+                        <button class="success" onclick="assignPlaneToRoute('${destination.id}')">${route ? "Add Plane to Route" : "Establish Route"}</button>
+                    ` : `<button disabled>${route ? "No Idle Suitable Aircraft" : "No Suitable Aircraft"}</button>`}
+                    ${route ? `<button class="danger small-button" onclick="removeRoute('${route.id}')">Close Entire Route</button>` : ""}`;
                 container.appendChild(card);
             });
         }
 
-        /* =========================================================
-           CREATE ROUTE
-        ========================================================= */
-
-        function createRoute(destinationId) {
-
+        function assignPlaneToRoute(destinationId) {
             const destination = getDestination(destinationId);
-
-            if (!destination) {
-                showNotification("Destination not found.", "error");
-                return;
-            }
-
-            if (gameState.routes.some(
-                route => route.destinationId === destinationId
-            )) {
-                showNotification("You already operate this route.", "error");
-                return;
-            }
-
-            const select = document.getElementById(
-                `plane-select-${destinationId}`
-            );
-
-            if (!select) {
-                showNotification("No aircraft is available for this route.", "error");
-                return;
-            }
-
+            if (!destination) return showNotification("Destination not found.", "error");
+            const select = document.getElementById(`plane-select-${destinationId}`);
+            if (!select) return showNotification("No suitable idle aircraft is available.", "error");
             const plane = getAircraftById(select.value);
+            if (!plane) return showNotification("Aircraft not found.", "error");
+            if (plane.assignedRouteId != null) return showNotification("That aircraft is already assigned.", "error");
+            if (plane.range < destination.distance) return showNotification("That aircraft does not have enough range.", "error");
 
-            if (!plane) {
-                showNotification("Aircraft not found.", "error");
-                return;
+            let route = gameState.routes.find(r => r.destinationId === destination.id);
+            if (!route) {
+                route = { id: `RT-${routeIdCounter++}`, destinationId: destination.id, destination: destination.city, distance: destination.distance, demand: destination.demand, ticketPrice: destination.baseTicketPrice, aircraftIds: [], aircraftId: null, weeklyRevenue: 0, weeklyPassengers: 0, flights: 0 };
+                gameState.routes.push(route);
             }
-
-            if (plane.assignedRouteId !== null) {
-                showNotification("That aircraft is already assigned.", "error");
-                return;
-            }
-
-            if (plane.range < destination.distance) {
-                showNotification(
-                    `${plane.name} does not have enough range.`,
-                    "error"
-                );
-                return;
-            }
-
-            const route = {
-                id: `RT-${routeIdCounter++}`,
-                destinationId: destination.id,
-                destination: destination.city,
-                distance: destination.distance,
-                demand: destination.demand,
-                ticketPrice: destination.baseTicketPrice,
-                aircraftId: plane.uniqueId,
-                weeklyRevenue: 0,
-                weeklyPassengers: 0,
-                flights: 0
-            };
-
-            gameState.routes.push(route);
-
+            if (!Array.isArray(route.aircraftIds)) route.aircraftIds = route.aircraftId ? [route.aircraftId] : [];
+            route.aircraftIds.push(plane.uniqueId);
+            route.aircraftId = route.aircraftIds[0];
             plane.assignedRouteId = route.id;
-
-            logMessage(
-                `Route established: Hub → ${destination.city} using ${plane.uniqueId}.`
-            );
-
-            showNotification(
-                `Route to ${destination.city} established!`,
-                "success"
-            );
-
+            logMessage(`${plane.stolen ? "🕵️ Stolen " : ""}${plane.name} (${plane.uniqueId}) assigned to Hub → ${destination.city}. Route now has ${route.aircraftIds.length} aircraft.`);
+            showNotification(`${plane.uniqueId} added to ${destination.city}.`, "success");
             updateUI();
         }
+
+        function createRoute(destinationId) { return assignPlaneToRoute(destinationId); }
 
         /* =========================================================
            REMOVE ROUTE
         ========================================================= */
 
         function removeRoute(routeId) {
-
             const route = getRouteById(routeId);
-
             if (!route) return;
+            const ids = Array.isArray(route.aircraftIds) ? route.aircraftIds : (route.aircraftId ? [route.aircraftId] : []);
+            ids.forEach(id => { const plane = getAircraftById(id); if (plane) plane.assignedRouteId = null; });
+            gameState.routes = gameState.routes.filter(r => r.id !== routeId);
+            logMessage(`Route to ${route.destination} closed. ${ids.length} aircraft returned to idle.`);
+            showNotification("Route closed and all aircraft released.", "warning");
+            updateUI();
+        }
 
-            const plane = getAircraftById(route.aircraftId);
-
-            if (plane) {
-                plane.assignedRouteId = null;
-            }
-
-            gameState.routes = gameState.routes.filter(
-                r => r.id !== routeId
-            );
-
-            logMessage(
-                `Route to ${route.destination} has been closed. ${route.aircraftId} is now idle.`
-            );
-
-            showNotification("Route closed.", "warning");
-
+        function removePlaneFromRoute(routeId, planeId) {
+            const route = getRouteById(routeId); if (!route) return;
+            if (!Array.isArray(route.aircraftIds)) route.aircraftIds = route.aircraftId ? [route.aircraftId] : [];
+            route.aircraftIds = route.aircraftIds.filter(id => String(id) !== String(planeId));
+            const plane = getAircraftById(planeId); if (plane) plane.assignedRouteId = null;
+            route.aircraftId = route.aircraftIds[0] || null;
+            if (route.aircraftIds.length === 0) gameState.routes = gameState.routes.filter(r => r.id !== routeId);
             updateUI();
         }
 
@@ -2480,9 +2551,7 @@
 
             gameState.fleet.forEach(plane => {
 
-                const route = plane.assignedRouteId
-                    ? getRouteById(plane.assignedRouteId)
-                    : null;
+                const route = plane.assignedRouteId != null ? getRouteById(plane.assignedRouteId) : null;
 
                 const item = document.createElement("div");
                 item.className = "route-item";
@@ -2531,49 +2600,16 @@
         ========================================================= */
 
         function renderActiveRoutes() {
-
-            const container = document.getElementById(
-                "active-routes-list"
-            );
-
+            const container = document.getElementById("active-routes-list"); if (!container) return;
             container.innerHTML = "";
-
-            if (gameState.routes.length === 0) {
-                container.innerHTML = `
-            <p class="empty">
-                No active flight routes.
-            </p>
-        `;
-                return;
-            }
-
+            if (!gameState.routes.length) { container.innerHTML = '<p class="empty">No active flight routes.</p>'; return; }
             gameState.routes.forEach(route => {
-
-                const plane = getAircraftById(route.aircraftId);
-
-                const item = document.createElement("div");
-                item.className = "route-item";
-
-                item.innerHTML = `
-            <div class="route-header">
-                <strong>Hub → ${route.destination}</strong>
-                <span class="badge">ACTIVE</span>
-            </div>
-
-            <div class="route-details">
-                Aircraft: ${plane ? plane.uniqueId : "Unknown"}<br>
-                Weekly passengers: ${formatNumber(route.weeklyPassengers)}<br>
-                Weekly revenue: ${formatMoney(route.weeklyRevenue)}<br>
-                Flights operated: ${route.flights}
-            </div>
-
-            <button
-                class="danger small-button"
-                onclick="removeRoute('${route.id}')">
-                Close Route
-            </button>
-        `;
-
+                const planes = getRoutePlanes(route);
+                const item = document.createElement("div"); item.className = "route-item";
+                item.innerHTML = `<div class="route-header"><strong>Hub → ${route.destination}</strong><span class="badge">${planes.length} PLANES</span></div>
+                    <div class="route-details">Distance: ${formatNumber(route.distance)} km<br>Weekly passengers: ${formatNumber(route.weeklyPassengers || 0)}<br>Weekly revenue: ${formatMoney(route.weeklyRevenue || 0)}<br>Flights operated: ${route.flights || 0}</div>
+                    <div style="margin-top:8px;display:grid;gap:6px;">${planes.map(p => `<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;"><span>✈️ ${p.uniqueId} — ${p.name}${p.stolen ? ' 🕵️' : ''}</span><button class="small-button" onclick="removePlaneFromRoute('${route.id}','${p.uniqueId}')">Remove</button></div>`).join("")}</div>
+                    <button class="danger small-button" style="margin-top:8px" onclick="removeRoute('${route.id}')">Close Route</button>`;
                 container.appendChild(item);
             });
         }
@@ -2803,28 +2839,22 @@
                 });
 
                 gameState.routes.forEach(route => {
-                    const plane = getAircraftById(route.aircraftId);
-                    if (!plane) return;
-
-                    const revenue = calculateWeeklyRevenue(route, plane);
-                    route.weeklyRevenue = revenue;
-
-                    let flightsPerWeek;
-                    if (route.distance <= 1500) flightsPerWeek = 14;
-                    else if (route.distance <= 4000) flightsPerWeek = 10;
-                    else if (route.distance <= 7000) flightsPerWeek = 7;
-                    else flightsPerWeek = 5;
-
-                    const loadFactor = Math.min(1, 0.45 + (route.demand / 100) * 0.5);
-                    const passengers = Math.floor(plane.capacity * loadFactor) * flightsPerWeek;
-
-                    route.weeklyPassengers = passengers;
-                    route.flights += flightsPerWeek;
-                    plane.flights += flightsPerWeek;
-                    gameState.totalFlights = (gameState.totalFlights || 0) + flightsPerWeek;
-                    plane.totalRevenue += revenue;
-                    totalRevenue += revenue;
+                    const planes = getRoutePlanes(route);
+                    if (!planes.length) return;
+                    let routeRevenue = 0, routePassengers = 0, routeFlights = 0;
+                    planes.forEach(plane => {
+                        const revenue = calculateWeeklyRevenue(route, plane);
+                        let flightsPerWeek = route.distance <= 1500 ? 14 : route.distance <= 4000 ? 10 : route.distance <= 7000 ? 7 : 5;
+                        const loadFactor = Math.min(1, 0.45 + (route.demand / 100) * 0.5);
+                        const passengers = Math.floor(plane.capacity * loadFactor) * flightsPerWeek;
+                        routeRevenue += revenue; routePassengers += passengers; routeFlights += flightsPerWeek;
+                        plane.flights += flightsPerWeek; plane.totalRevenue += revenue;
+                    });
+                    route.weeklyRevenue = routeRevenue; route.weeklyPassengers = routePassengers; route.flights += routeFlights;
+                    gameState.totalFlights = (gameState.totalFlights || 0) + routeFlights;
+                    totalRevenue += routeRevenue;
                 });
+                processGangWeek();
 
                 const net = totalRevenue - totalMaintenance;
                 logMessage(
@@ -2946,6 +2976,162 @@
 
 
 
+
+        /* =========================================================
+           CRIME CAPTURE / MASSIVE TRIAL
+        ========================================================= */
+        let massiveTrial = null;
+
+        const massiveTrialRounds = [
+            ["Arrest & Charges", [["Cooperate and acknowledge the charges", -2, 5, "You acknowledge the charges."], ["Contest the allegations", 2, -2, "You ask the court to scrutinize every allegation."], ["Have counsel open the case", 5, 4, "Your lawyer delivers a structured opening."]]],
+            ["Prosecution Evidence", [["Challenge the evidence calmly", 5, 2, "You request a careful review."], ["Object aggressively", 2, -3, "The objection is heard, but the judge asks for restraint."], ["Let counsel examine the evidence", 6, 4, "Your legal team identifies inconsistencies."]]],
+            ["Witness Testimony", [["Give a clear account", 6, 3, "Your testimony is internally consistent."], ["Answer briefly and precisely", 4, 5, "The judge notes your concise answers."], ["Let counsel question the witness", 7, 4, "Counsel exposes a contradiction."]]],
+            ["Cross-Examination", [["Point out contradictions", 7, 1, "You highlight conflicting details."], ["Ask for clarification", 4, 4, "The court permits clarification."], ["Let counsel proceed", 6, 5, "Your lawyer conducts the questioning."]]],
+            ["Financial Records", [["Present clean records", 8, 4, "The records strengthen your defense."], ["Explain the transactions", 4, 2, "You explain the transactions."], ["Have counsel present them", 7, 5, "Counsel presents the records methodically."]]],
+            ["Plane-Heist Allegation", [["Argue the evidence is incomplete", 6, 2, "You point out gaps in the record."], ["Focus on facts, not emotion", 5, 5, "The judge notes the focused argument."], ["Have counsel lead", 8, 4, "Counsel gives a detailed response."]]],
+            ["Public Testimony", [["Testify confidently", 5, 3, "You give a direct answer."], ["Admit uncertainty when appropriate", 4, 6, "The judge values careful wording."], ["Consult counsel before answering", 6, 5, "Your lawyer handles the legal response."]]],
+            ["Regulatory Review", [["Show compliance records", 7, 4, "Your records help your position."], ["Challenge the regulator's interpretation", 5, 0, "The court hears the challenge."], ["Let counsel argue the law", 8, 5, "Counsel makes a detailed submission."]]],
+            ["Final Witness", [["Give a consistent timeline", 7, 4, "The timeline is clear."], ["Let counsel summarize the record", 8, 5, "Your lawyer connects the evidence."], ["Keep testimony short", 4, 6, "You avoid unnecessary contradictions."]]],
+            ["Closing Argument", [["Give a factual closing", 7, 4, "Your closing focuses on the record."], ["Make a passionate closing", 5, 2, "Your closing is forceful but emotional."], ["Let counsel deliver it", 9, 6, "Counsel gives a detailed closing."]]],
+            ["Judge's Questions", [["Answer directly", 6, 5, "You answer directly."], ["Ask for clarification", 5, 6, "The judge allows clarification."], ["Let counsel assist", 8, 5, "Your lawyer helps frame the response."]]],
+            ["Final Verdict Hearing", [["Stand by your defense", 7, 3, "You stand by the evidence and testimony."], ["Request leniency", 2, 8, "You request a measured sentence if convicted."], ["Give the final statement to counsel", 8, 6, "Your lawyer delivers the final statement."]]]
+        ];
+
+        function triggerMassiveTrial() {
+            if ((gameState.crimeHeat || 0) <= 90 || (massiveTrial && massiveTrial.active)) return;
+            gameState.crimeCaptures = (gameState.crimeCaptures || 0) + 1;
+            gameState.captured = true;
+            massiveTrial = {
+                active: true, round: 1, maxRounds: massiveTrialRounds.length,
+                defense: Math.min(92, 30 + (gameState.lawyers || 0) * 6 + (gameState.reputation || 50) * .18),
+                judgeFavor: Math.min(80, 35 + (gameState.reputation || 50) * .12),
+                prosecution: Math.round(62 + Math.random() * 20)
+            };
+            logMessage("🚔 Police captured your airline after crime heat exceeded 90%. A massive criminal trial has begun.");
+            showNotification("🚔 CAPTURED! Crime heat exceeded 90%. The massive trial begins.", "error");
+            openMassiveTrial();
+        }
+
+        function openMassiveTrial() {
+            const modal = document.getElementById("court-modal");
+            if (!modal) return;
+            modal.classList.remove("hidden");
+            document.getElementById("court-case-title").textContent = "🚔 THE PEOPLE v. AIRLINE EMPIRE — MASSIVE CRIMINAL TRIAL";
+            document.getElementById("court-plaintiff").textContent = "The prosecution alleges a long-running criminal operation involving stolen aircraft and illegal activity.";
+            document.getElementById("court-judge").textContent = "This extended hearing will examine evidence, witnesses, testimony and financial records.";
+            document.getElementById("court-lawyer").textContent = (gameState.lawyers || 0) > 0
+                ? `Your ${gameState.lawyers} lawyer(s) will defend you through all ${massiveTrial.maxRounds} stages.`
+                : "You are representing yourself through a complex 12-stage criminal trial.";
+            document.getElementById("court-dialogue").innerHTML = "";
+            document.getElementById("court-evidence").innerHTML = [
+                "Crime heat record", "Aircraft ownership records", "Flight activity records", "Financial transactions", "Witness statements", "Regulatory correspondence"
+            ].map(e => `<span class="evidence-chip">📄 ${escapeHtml(e)}</span>`).join("");
+            courtLog("Judge", "The extended criminal trial is now in session.");
+            courtLog("Prosecution", "The prosecution will present a substantial record of allegations.");
+            courtLog("Lawyer", (gameState.lawyers || 0) > 0 ? "We will contest this case stage by stage." : "Every answer matters. Stay consistent.");
+            renderMassiveTrialRound();
+            updateMassiveTrialUI();
+        }
+
+        function renderMassiveTrialRound() {
+            const stage = massiveTrialRounds[massiveTrial.round - 1];
+            document.getElementById("court-prompt").textContent = `Stage ${massiveTrial.round} of ${massiveTrial.maxRounds}: ${stage[0]}`;
+            const box = document.getElementById("court-choices"); box.innerHTML = "";
+            stage[1].forEach((c, i) => {
+                const b = document.createElement("button"); b.className = "court-choice";
+                b.innerHTML = `<strong>${i + 1}. ${escapeHtml(c[0])}</strong><span>${escapeHtml(c[3])}</span>`;
+                b.onclick = () => chooseMassiveTrialAction(c); box.appendChild(b);
+            });
+            document.getElementById("court-advice").textContent = "12-stage trial: testimony, evidence, witnesses, financial records, cross-examination and closing arguments all matter.";
+            document.getElementById("court-settle-button").textContent = "🚫 No Settlement — Criminal Trial";
+        }
+
+        function chooseMassiveTrialAction(c) {
+            if (!massiveTrial || !massiveTrial.active) return;
+            const lawyerBonus = Math.min(5, (gameState.lawyers || 0) * 1.2);
+            massiveTrial.defense = Math.max(0, Math.min(100, massiveTrial.defense + c[1] + lawyerBonus + (Math.random() * 7 - 3)));
+            massiveTrial.judgeFavor = Math.max(0, Math.min(100, massiveTrial.judgeFavor + c[2]));
+            courtLog("You", c[3]);
+            massiveTrial.round++;
+            if (massiveTrial.round > massiveTrial.maxRounds) resolveMassiveTrial();
+            else { renderMassiveTrialRound(); updateMassiveTrialUI(); }
+        }
+
+        function updateMassiveTrialUI() {
+            if (!massiveTrial) return;
+            const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v };
+            set("court-defense", Math.round(massiveTrial.defense) + "%");
+            set("court-judge-favor", Math.round(massiveTrial.judgeFavor) + "%");
+            set("court-case-strength", Math.round(massiveTrial.prosecution) + "%");
+            set("court-reputation", Math.round(gameState.reputation || 50) + "/100");
+            set("court-round", `${Math.min(massiveTrial.round, massiveTrial.maxRounds)} / ${massiveTrial.maxRounds}`);
+        }
+
+        function resolveMassiveTrial() {
+            const score = massiveTrial.defense * .65 + massiveTrial.judgeFavor * .35;
+            const won = score >= massiveTrial.prosecution;
+            massiveTrial.active = false; gameState.captured = false;
+            if (won) {
+                gameState.crimeHeat = Math.max(35, (gameState.crimeHeat || 0) - 45);
+                gameState.reputation = Math.max(0, (gameState.reputation || 50) - 3);
+                gameState.cash = Math.max(0, gameState.cash - 750000);
+                logMessage("⚖️ MASSIVE TRIAL: Not guilty. Legal costs: $750,000.");
+                showNotification("⚖️ MASSIVE TRIAL COMPLETE: NOT GUILTY", "success");
+            } else {
+                const penalty = Math.min(8000000, Math.max(1000000, Math.round(gameState.cash * .35)));
+                gameState.cash = Math.max(0, gameState.cash - penalty);
+                gameState.reputation = Math.max(0, (gameState.reputation || 50) - 15);
+                gameState.crimeHeat = Math.max(25, (gameState.crimeHeat || 0) - 60);
+                logMessage(`⚖️ MASSIVE TRIAL: Convicted. Penalty ${formatMoney(penalty)}.`);
+                showNotification(`⚖️ MASSIVE TRIAL COMPLETE: CONVICTED — ${formatMoney(penalty)} penalty`, "error");
+            }
+            document.getElementById("court-prompt").textContent = won ? "VERDICT: NOT GUILTY" : "VERDICT: CONVICTED";
+            document.getElementById("court-choices").innerHTML = `<button class="${won ? "success" : "danger"}" onclick="document.getElementById('court-modal').classList.add('hidden');updateUI();">Return to Airline Empire</button>`;
+            document.getElementById("court-advice").textContent = won ? "You survived the extended criminal trial." : "The criminal trial is over. Your airline has suffered a major penalty.";
+            updateUI();
+        }
+
+        /* =========================================================
+           MOB / GANG NETWORK — fictional game mechanics
+        ========================================================= */
+        function gangLog(message) { const box = document.getElementById("gang-log"); if (!box) return; const d = document.createElement("div"); d.textContent = `[Wk ${gameState.week}] ${message}`; box.appendChild(d); box.scrollTop = box.scrollHeight; }
+        function hireGang() {
+            const cost = 1500000; if (gameState.cash < cost) return showNotification("You need $1,500,000 to hire a crew.", "error");
+            gameState.cash -= cost; gameState.lifetimeExpenses = (gameState.lifetimeExpenses || 0) + cost;
+            const gang = { id: "GANG-" + (gameState.gangs.length + 1), name: ["Blackbird Syndicate", "Night Run Crew", "Iron Wings", "Redline Outfit", "Midnight Union"][gameState.gangs.length % 5], income: 180000 + Math.floor(Math.random() * 220000), loyalty: 55 + Math.floor(Math.random() * 30), jobs: 0, planes: 0 };
+            gameState.gangs.push(gang); gameState.gangLoyalty = Math.round(gameState.gangs.reduce((a, g) => a + g.loyalty, 0) / gameState.gangs.length);
+            gangLog(`🕶️ ${gang.name} joined your network. Expected income: ${formatMoney(gang.income)}/week.`); showNotification(`${gang.name} hired.`, "success"); updateUI();
+        }
+        function sendGangJob() {
+            if (!gameState.gangs.length) return showNotification("Hire a crew first.", "warning");
+            const gang = gameState.gangs[Math.floor(Math.random() * gameState.gangs.length)]; gang.jobs++;
+            const success = Math.random() < Math.min(.9, .55 + gang.loyalty / 250);
+            if (success) { const reward = 250000 + Math.floor(Math.random() * 1250000); gameState.cash += reward; gameState.gangIncome = (gameState.gangIncome || 0) + reward; gameState.crimeProfit = (gameState.crimeProfit || 0) + reward; gangLog(`💰 ${gang.name} completed a fictional job and returned ${formatMoney(reward)}.`); showNotification(`Gang job earned ${formatMoney(reward)}.`, "success"); }
+            else { addCrimeHeat(8); gang.loyalty = Math.max(10, gang.loyalty - 5); gangLog(`🚨 ${gang.name} failed a job. Crime heat increased.`); showNotification("Gang job failed and increased heat.", "error"); }
+            gameState.gangLoyalty = Math.round(gameState.gangs.reduce((a, g) => a + g.loyalty, 0) / gameState.gangs.length); updateUI();
+        }
+        function gangStealPlane() {
+            if (!gameState.gangs.length) return showNotification("Hire a crew first.", "warning");
+            const gang = gameState.gangs[Math.floor(Math.random() * gameState.gangs.length)];
+            const success = Math.random() < Math.min(.82, .42 + gang.loyalty / 180); addCrimeHeat(success ? 12 : 7);
+            if (!success) { gang.loyalty = Math.max(10, gang.loyalty - 6); gangLog(`🚨 ${gang.name} failed to acquire an aircraft.`); showNotification("The gang failed to acquire a plane.", "error"); updateUI(); return; }
+            const model = crimeAircraft[Math.floor(Math.random() * crimeAircraft.length)];
+            const stolenPlane = { ...model, uniqueId: `AC-${planeIdCounter++}`, modelId: model.id, assignedRouteId: null, totalRevenue: 0, flights: 0, stolen: true, gangAcquired: true };
+            gameState.fleet.push(stolenPlane); gameState.planesStolen = (gameState.planesStolen || 0) + 1; gameState.gangPlanes = (gameState.gangPlanes || 0) + 1; gang.planes++;
+            const bonus = Math.round(model.cost * .06); gameState.cash += bonus; gameState.crimeProfit = (gameState.crimeProfit || 0) + bonus;
+            gangLog(`✈️ ${gang.name} acquired a ${model.name}. It is now in your fleet and can be assigned to any suitable route.`); showNotification(`${model.name} acquired by ${gang.name} and added to fleet.`, "success"); updateUI();
+        }
+        function processGangWeek() {
+            if (!gameState.gangs.length) return; let income = 0;
+            gameState.gangs.forEach(g => { const earned = Math.round(g.income * (.8 + Math.random() * .5)); income += earned; g.loyalty = Math.min(100, g.loyalty + (Math.random() < .6 ? 1 : 0)); });
+            gameState.gangIncome = (gameState.gangIncome || 0) + income;
+            if (income > 0) gangLog(`💵 Gang network generated an estimated ${formatMoney(income)} this week.`);
+        }
+        function updateGangUI() {
+            const gangs = gameState.gangs || []; const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+            set("gang-count", gangs.length); set("gang-income", formatMoney(gangs.reduce((a, g) => a + g.income, 0)) + "/wk"); set("gang-planes", gangs.reduce((a, g) => a + (g.planes || 0), 0)); set("gang-loyalty", (gangs.length ? Math.round(gangs.reduce((a, g) => a + g.loyalty, 0) / gangs.length) : 50) + "%");
+        }
+
         /* =========================================================
            CRIME ARCADE ENGINE
            Fictional, game-only mechanics — no real-world guidance.
@@ -2972,6 +3158,7 @@
 
         function addCrimeHeat(amount) {
             gameState.crimeHeat = Math.max(0, Math.min(100, (gameState.crimeHeat || 0) + amount));
+            if (gameState.crimeHeat > 90) triggerMassiveTrial();
         }
 
         function crimeLog(message) {
@@ -2983,7 +3170,10 @@
             box.scrollTop = box.scrollHeight;
         }
 
+        function checkCrimeCapture() { if ((gameState.crimeHeat || 0) > 90) triggerMassiveTrial(); }
+
         function updateCrimeUI() {
+            checkCrimeCapture();
             const heat = Math.round(gameState.crimeHeat || 0);
             const set = (id, value) => {
                 const el = document.getElementById(id);
@@ -3658,26 +3848,13 @@
         ========================================================= */
 
         function calculateEstimatedWeeklyProfit() {
-
             let revenue = 0;
             let maintenance = 0;
-
-            gameState.fleet.forEach(plane => {
-                maintenance += plane.weeklyMaintenance;
-            });
-
+            gameState.fleet.forEach(plane => { maintenance += Number(plane.weeklyMaintenance) || 0; });
             gameState.routes.forEach(route => {
-
-                const plane = getAircraftById(route.aircraftId);
-
-                if (plane) {
-                    revenue += calculateWeeklyRevenue(
-                        route,
-                        plane
-                    );
-                }
+                getRoutePlanes(route).forEach(plane => { revenue += calculateWeeklyRevenue(route, plane); });
             });
-
+            (gameState.gangs || []).forEach(gang => { revenue += Number(gang.income) || 0; });
             return revenue - maintenance;
         }
 
@@ -3686,6 +3863,7 @@
         ========================================================= */
 
         function updateUI() {
+            updateGangUI();
 
             document.getElementById("stat-cash").textContent =
                 formatMoney(gameState.cash);
@@ -3704,6 +3882,15 @@
 
             profitElement.textContent =
                 formatMoney(profit);
+
+            const financeCash = document.getElementById("finance-cash");
+            const financeProfit = document.getElementById("finance-weekly-profit");
+            const financeSecond = document.getElementById("finance-per-second");
+            const financeLoan = document.getElementById("finance-loan");
+            if (financeCash) financeCash.textContent = formatMoney(gameState.cash);
+            if (financeProfit) financeProfit.textContent = formatMoney(profit);
+            if (financeSecond) financeSecond.textContent = formatMoney(profit / (SECONDS_PER_WEEK * 7));
+            if (financeLoan) financeLoan.textContent = formatMoney(gameState.loan || 0);
 
             const perSecondElement = document.getElementById("stat-per-second");
             if (perSecondElement) {
@@ -3835,7 +4022,7 @@
                 if (gameState.loan === undefined) gameState.loan = 0;
                 if (gameState.loanDueWeek === undefined) gameState.loanDueWeek = 0;
                 if (gameState.tickSeconds === undefined) gameState.tickSeconds = 0;
-                if (gameState.airlineName === undefined) gameState.airlineName = "SkyHigh Airlines";
+                if (gameState.airlineName === undefined) gameState.airlineName = "Airline Empire";
                 if (gameState.theme === undefined) gameState.theme = "classic";
                 if (gameState.lifetimeRevenue === undefined) gameState.lifetimeRevenue = 0;
                 if (gameState.lifetimeExpenses === undefined) gameState.lifetimeExpenses = 0;
@@ -3863,6 +4050,13 @@
                 if (gameState.planesStolen === undefined) gameState.planesStolen = 0;
                 if (gameState.crimeProfit === undefined) gameState.crimeProfit = 0;
                 if (gameState.crimeHeat === undefined) gameState.crimeHeat = 0;
+                if (gameState.crimeCaptures === undefined) gameState.crimeCaptures = 0;
+                if (gameState.captured === undefined) gameState.captured = false;
+                if (!Array.isArray(gameState.gangs)) gameState.gangs = [];
+                if (gameState.gangIncome === undefined) gameState.gangIncome = 0;
+                if (gameState.gangLoyalty === undefined) gameState.gangLoyalty = 50;
+                if (gameState.gangPlanes === undefined) gameState.gangPlanes = 0;
+                gameState.routes.forEach(route => { if (!Array.isArray(route.aircraftIds)) route.aircraftIds = route.aircraftId ? [route.aircraftId] : []; route.aircraftId = route.aircraftIds[0] || null; });
 
                 applyTheme(gameState.theme);
                 updateAirlineBranding();
@@ -3929,7 +4123,7 @@
                 loan: 0,
                 loanDueWeek: 0,
                 tickSeconds: 0,
-                airlineName: "SkyHigh Airlines",
+                airlineName: "Airline Empire",
                 theme: "classic",
                 lifetimeRevenue: 0,
                 lifetimeExpenses: 0,
@@ -3990,6 +4184,23 @@
             "DOMContentLoaded",
             initGame
         );
+
+
+        function switchGameTab(tabId) {
+            const target = document.getElementById(tabId);
+            if (!target) return;
+            document.querySelectorAll(".switchable-panel").forEach(p => p.classList.toggle("tab-hidden", p.id !== tabId));
+            document.querySelectorAll(".top-tab").forEach(b => b.classList.toggle("active", b.dataset.tabTarget === tabId));
+            try { localStorage.setItem("airlineEmpireActiveTab", tabId) } catch (e) { }
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        function initGameTabs() {
+            const panels = document.querySelectorAll(".switchable-panel"); if (!panels.length) return;
+            let saved = null; try { saved = localStorage.getItem("airlineEmpireActiveTab") } catch (e) { }
+            const chosen = saved && document.getElementById(saved) ? saved : panels[0].id;
+            switchGameTab(chosen);
+        }
+        window.addEventListener("DOMContentLoaded", initGameTabs);
 
     </script>
 
