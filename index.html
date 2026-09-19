@@ -566,6 +566,28 @@
             border: 1px solid rgba(255, 255, 255, .35);
         }
 
+        /* PAUSE MENU / FLARE GAMES DISCORD */
+        .pause-overlay {
+            position: fixed; inset: 0; z-index: 13000;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px; background: rgba(2, 6, 23, .86);
+            backdrop-filter: blur(5px);
+        }
+        .pause-overlay.hidden { display: none; }
+        .pause-card {
+            width: min(520px, 100%); background: rgba(255,255,255,.98);
+            border-radius: 18px; padding: 30px; text-align: center;
+            box-shadow: 0 30px 90px rgba(0,0,0,.5);
+        }
+        .pause-card .pause-icon { font-size: 3.5rem; margin-bottom: 8px; }
+        .pause-card h2 { color: var(--primary); margin-bottom: 8px; font-size: 2rem; }
+        .pause-card p { color: var(--gray); margin-bottom: 18px; }
+        .pause-actions { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+        .pause-actions button { margin: 0; min-height: 48px; font-size: .95rem; }
+        .discord-button { background: #5865F2 !important; color: white !important; }
+        .discord-button:hover:not(:disabled) { background: #4752c4 !important; }
+        @media (max-width: 520px) { .pause-actions { grid-template-columns: 1fr; } }
+
         @media (max-width: 768px) {
             .menu-grid {
                 grid-template-columns: 1fr;
@@ -1303,7 +1325,26 @@
                 <button class="success" onclick="startNewAirline()">🚀 Start New Airline</button>
                 <button onclick="continueAirline()">▶️ Continue Saved Game</button>
             </div>
+            <div class="menu-actions" style="margin-top:10px;">
+                <button class="discord-button" onclick="openDiscord()">💬 Join Flare Games on Discord</button>
+            </div>
             <p class="menu-tip">Tip: You can open the full stats screen at any time while playing.</p>
+        </div>
+    </div>
+
+    <!-- PAUSE MENU -->
+    <div id="pause-menu" class="pause-overlay hidden" aria-hidden="true">
+        <div class="pause-card">
+            <div class="pause-icon">⏸️</div>
+            <h2>Game Paused</h2>
+            <p>Your airline is paused. Income, weeks and other game-time systems will stop until you resume.</p>
+            <div class="pause-actions">
+                <button class="success" onclick="resumeGame()">▶️ Resume Game</button>
+                <button class="discord-button" onclick="openDiscord()">💬 Flare Games Discord</button>
+                <button onclick="saveGame()">💾 Save Game</button>
+                <button onclick="openStartMenuFromPause()">🏠 Main Menu</button>
+            </div>
+            <p class="menu-tip" style="margin-top:15px;">Press <strong>Esc</strong> to resume or pause.</p>
         </div>
     </div>
 
@@ -1331,6 +1372,7 @@
 
             <div class="save-controls">
                 <button class="small-button menu-button" onclick="openStartMenu()">Menu</button>
+                <button class="small-button menu-button" id="pause-button" onclick="togglePause()">⏸️ Pause</button>
                 <button class="small-button menu-button" onclick="openStats()">Stats</button>
                 <button class="small-button" onclick="saveGame()">Save</button>
                 <button class="small-button" onclick="loadGame()">Load</button>
@@ -1930,6 +1972,7 @@
         let planeIdCounter = 1;
         let routeIdCounter = 1;
         let gameTimer = null;
+        let isGamePaused = true;
 
         /* =========================================================
            AIRCRAFT
@@ -2077,11 +2120,9 @@
             updateUI();
             updateMenuStats();
 
-            if (gameTimer) {
-                clearInterval(gameTimer);
-            }
-
-            gameTimer = setInterval(progressGameTick, TICK_TIME);
+            stopGameLoop();
+            isGamePaused = true;
+            updatePauseButton();
 
             // Show the menu first unless a save is already available.
             const hasSave = !!localStorage.getItem("skyhighAirlineSave");
@@ -2164,8 +2205,90 @@
             }
         }
 
-        function openStartMenu() {
+        function startGameLoop() {
             if (gameTimer) clearInterval(gameTimer);
+            gameTimer = setInterval(progressGameTick, TICK_TIME);
+            isGamePaused = false;
+            updatePauseButton();
+        }
+
+        function stopGameLoop() {
+            if (gameTimer) {
+                clearInterval(gameTimer);
+                gameTimer = null;
+            }
+        }
+
+        function updatePauseButton() {
+            const button = document.getElementById("pause-button");
+            if (!button) return;
+            button.textContent = isGamePaused ? "▶️ Resume" : "⏸️ Pause";
+        }
+
+        function openDiscord() {
+            window.open("https://discord.gg/H4yUDfvNfQ", "_blank", "noopener,noreferrer");
+        }
+
+        function pauseGame() {
+            if (isGamePaused) {
+                const menu = document.getElementById("pause-menu");
+                if (menu) {
+                    menu.classList.remove("hidden");
+                    menu.setAttribute("aria-hidden", "false");
+                }
+                return;
+            }
+            stopGameLoop();
+            isGamePaused = true;
+            updatePauseButton();
+
+            const menu = document.getElementById("pause-menu");
+            if (menu) {
+                menu.classList.remove("hidden");
+                menu.setAttribute("aria-hidden", "false");
+            }
+        }
+
+        function resumeGame() {
+            const pauseMenu = document.getElementById("pause-menu");
+            if (pauseMenu) {
+                pauseMenu.classList.add("hidden");
+                pauseMenu.setAttribute("aria-hidden", "true");
+            }
+            const startMenu = document.getElementById("start-menu");
+            if (startMenu) startMenu.classList.add("hidden");
+            startGameLoop();
+        }
+
+        function togglePause() {
+            const startMenu = document.getElementById("start-menu");
+            if (startMenu && !startMenu.classList.contains("hidden")) return;
+            const pauseMenu = document.getElementById("pause-menu");
+            if (pauseMenu && !pauseMenu.classList.contains("hidden")) {
+                resumeGame();
+            } else if (isGamePaused) {
+                resumeGame();
+            } else {
+                pauseGame();
+            }
+        }
+
+        function openStartMenu() {
+            stopGameLoop();
+            isGamePaused = true;
+            updatePauseButton();
+            showStartMenu();
+        }
+
+        function openStartMenuFromPause() {
+            const pauseMenu = document.getElementById("pause-menu");
+            if (pauseMenu) {
+                pauseMenu.classList.add("hidden");
+                pauseMenu.setAttribute("aria-hidden", "true");
+            }
+            stopGameLoop();
+            isGamePaused = true;
+            updatePauseButton();
             showStartMenu();
         }
 
@@ -2244,8 +2367,7 @@
 
             document.getElementById("start-menu").classList.add("hidden");
 
-            if (gameTimer) clearInterval(gameTimer);
-            gameTimer = setInterval(progressGameTick, TICK_TIME);
+            startGameLoop();
 
             showNotification(`Welcome, ${name}!`, "success");
         }
@@ -2262,8 +2384,7 @@
 
             setTimeout(() => {
                 document.getElementById("start-menu").classList.add("hidden");
-                if (gameTimer) clearInterval(gameTimer);
-                gameTimer = setInterval(progressGameTick, TICK_TIME);
+                startGameLoop();
             }, 50);
         }
 
@@ -2814,6 +2935,8 @@
         ========================================================= */
 
         function progressGameTick() {
+            if (isGamePaused) return;
+
             // Real-time income: the estimated weekly profit is divided across 4 seconds.
             const weeklyProfit = calculateEstimatedWeeklyProfit();
             const perSecond = weeklyProfit / SECONDS_PER_WEEK;
@@ -4179,14 +4302,29 @@
                 "success"
             );
 
-            if (gameTimer) clearInterval(gameTimer);
-            gameTimer = null;
+            stopGameLoop();
+            isGamePaused = true;
+            updatePauseButton();
             showStartMenu();
         }
 
         /* =========================================================
            START
         ========================================================= */
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key !== "Escape") return;
+
+            const startMenu = document.getElementById("start-menu");
+            if (startMenu && !startMenu.classList.contains("hidden")) return;
+
+            const pauseMenu = document.getElementById("pause-menu");
+            if (pauseMenu && !pauseMenu.classList.contains("hidden")) {
+                resumeGame();
+            } else {
+                togglePause();
+            }
+        });
 
         document.addEventListener(
             "DOMContentLoaded",
